@@ -1,0 +1,62 @@
+{
+  "Hungry": [
+    "밥그릇을 채워 주실 수 있나요?"
+  ],
+  "Thirsty": [
+    "물을 조금 마시고 싶어요."
+  ],
+  "SnackRequest": [
+    "잠깐 간식 먹어도 될까요?"
+  ],
+  "Happy": [
+    "잘 먹었습니다!"
+  ],
+  "Annoyed": [
+    "그건 곤란해요…"
+  ],
+  "Sleepy": [
+    "조금 쉬었다가 할게요."
+  ],
+  "Greeting": [
+    "안녕하세요!"
+  ],
+  "ReturnGreeting": [
+    "수고하셨어요!"
+  ],
+  "PetReaction": [
+    "감사합니다!"
+  ],
+  "FlickReaction": [
+    "앗…!"
+  ],
+  "IdleTalk": [
+    "오늘도 열심히 해 볼게요."
+  ],
+  "Attention": [
+    "잠깐 같이 쉬실래요?"
+  ],
+  "Meal": [
+    "잘 먹었습니다!"
+  ],
+  "Snack": [
+    "감사합니다! 맛있게 먹을게요!"
+  ],
+  "WaterReaction": [
+    "잘 마셨어요!"
+  ],
+  "PraiseReaction": [
+    "더 열심히 할게요!"
+  ],
+  "SootheReaction": [
+    "신경 써 주셔서 감사해요."
+  ],
+  "RefuseReaction": [
+    "네! 조금 더 기다릴게요."
+  ],
+  "WakeReaction": [
+    "앗, 일어났어요!"
+  ],
+  "Meal:jiro-ramen": [
+    "라멘, 정말 맛있어요!"
+  ]
+}

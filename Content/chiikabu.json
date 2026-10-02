@@ -1,0 +1,58 @@
+{
+  "CharacterId": "chiikabu",
+  "DisplayName": "장수풍뎅이",
+  "AssetSet": "chiikabu",
+  "DialogueSetId": "chiikabu",
+  "AnimationSetId": "chiikabu",
+  "WanderFrequency": 0.45,
+  "Clinginess": 0.35,
+  "Playfulness": 0.85,
+  "Timidity": 0.15,
+  "Mischief": 0.7,
+  "Patience": 0.4,
+  "FoodLove": 0.78,
+  "SnackLove": 0.94,
+  "Sleepiness": 0.3,
+  "FavoriteFoods": [
+    "meal",
+    "nuts"
+  ],
+  "FavoriteSnacks": [
+    "cookie"
+  ],
+  "FavoriteToys": [
+    "ball"
+  ],
+  "PreferredBeds": [
+    "cushion"
+  ],
+  "BehaviorModifiers": {
+    "Idle": 1
+  },
+  "RelationshipModifiers": {
+    "Snack": 1.1,
+    "Pet": 1.0
+  },
+  "Theme": {
+    "Name": "장수풍뎅이",
+    "Background": "#F8FCF7",
+    "Surface": "#FFFFFF",
+    "Ink": "#493C3C",
+    "Muted": "#897774",
+    "Accent": "#95754A",
+    "Soft": "#F4EBDD",
+    "Border": "#CBDDC8",
+    "Healthy": "#66AFA3",
+    "Warning": "#C89445",
+    "Critical": "#CE738B",
+    "CornerRadius": 18
+  },
+  "TalkFrequency": 0.06,
+  "Category": "치이카와 · 괴물",
+  "Description": "작고 활발한 장수풍뎅이 친구",
+  "ItemPreferences": {
+    "fruit": 1.7,
+    "dessert": 1.5,
+    "beer": 0.05
+  }
+}

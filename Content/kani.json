@@ -1,0 +1,58 @@
+{
+  "CharacterId": "kani",
+  "DisplayName": "카니",
+  "AssetSet": "kani",
+  "DialogueSetId": "kani",
+  "AnimationSetId": "kani",
+  "WanderFrequency": 0.17,
+  "Clinginess": 0.6,
+  "Playfulness": 0.4,
+  "Timidity": 0.15,
+  "Mischief": 0.15,
+  "Patience": 0.85,
+  "FoodLove": 0.78,
+  "SnackLove": 0.94,
+  "Sleepiness": 0.5,
+  "FavoriteFoods": [
+    "white-rice",
+    "fruit"
+  ],
+  "FavoriteSnacks": [
+    "dessert",
+    "cookie"
+  ],
+  "FavoriteToys": [
+    "ball"
+  ],
+  "PreferredBeds": [
+    "cushion"
+  ],
+  "BehaviorModifiers": {
+    "Idle": 1.4
+  },
+  "RelationshipModifiers": {
+    "Snack": 1.1,
+    "Pet": 1.0
+  },
+  "Theme": {
+    "Name": "Crab Pink",
+    "Background": "#FFF8FB",
+    "Surface": "#FFFFFF",
+    "Ink": "#493C3C",
+    "Muted": "#897774",
+    "Accent": "#C57D96",
+    "Soft": "#F8E3EC",
+    "Border": "#E7CAD8",
+    "Healthy": "#66AFA3",
+    "Warning": "#C89445",
+    "Critical": "#CE738B",
+    "CornerRadius": 18
+  },
+  "TalkFrequency": 0.12,
+  "Category": "치이카와",
+  "Description": "조용하고 다정한 헌책방 친구",
+  "ItemPreferences": {
+    "dessert": 1.2,
+    "beer": 0.1
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "CharacterId": "usagi",
+  "DisplayName": "우사기",
+  "AssetSet": "usagi",
+  "DialogueSetId": "usagi",
+  "AnimationSetId": "usagi",
+  "WanderFrequency": 0.58,
+  "Clinginess": 0.35,
+  "Playfulness": 0.9,
+  "Timidity": 0.15,
+  "Mischief": 0.82,
+  "Patience": 0.3,
+  "FoodLove": 0.78,
+  "SnackLove": 0.94,
+  "Sleepiness": 0.15,
+  "FavoriteFoods": [
+    "curry-rice",
+    "fruit"
+  ],
+  "FavoriteSnacks": [
+    "cookie",
+    "dorayaki"
+  ],
+  "FavoriteToys": [
+    "ball"
+  ],
+  "PreferredBeds": [
+    "cushion"
+  ],
+  "BehaviorModifiers": {
+    "Idle": 1
+  },
+  "RelationshipModifiers": {
+    "Snack": 1.1,
+    "Pet": 1.0
+  },
+  "Theme": {
+    "Name": "Butter Yellow",
+    "Background": "#FFFCF1",
+    "Surface": "#FFFFFF",
+    "Ink": "#493C3C",
+    "Muted": "#897774",
+    "Accent": "#B39C4E",
+    "Soft": "#FFF2CA",
+    "Border": "#E9DCA9",
+    "Healthy": "#66AFA3",
+    "Warning": "#C89445",
+    "Critical": "#CE738B",
+    "CornerRadius": 18
+  },
+  "TalkFrequency": 0.45,
+  "Category": "치이카와",
+  "Description": "야하! 신나게 노는 장난꾸러기",
+  "ItemPreferences": {
+    "fruit": 1.2,
+    "dorayaki": 1.3,
+    "beer": 0.1
+  }
+}

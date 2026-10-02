@@ -1,0 +1,63 @@
+{
+  "Hungry": [
+    "밥그릇이 비어 있네…"
+  ],
+  "Thirsty": [
+    "물 좀 마실까?"
+  ],
+  "SnackRequest": [
+    "간식도 같이 먹을래?"
+  ],
+  "Happy": [
+    "맛있다…!",
+    "좋은 느낌이야!"
+  ],
+  "Annoyed": [
+    "그건 조금 싫어…"
+  ],
+  "Sleepy": [
+    "조금 졸리네…"
+  ],
+  "Greeting": [
+    "안녕! 같이 있자."
+  ],
+  "ReturnGreeting": [
+    "돌아왔네!"
+  ],
+  "PetReaction": [
+    "헤헤… 고마워!"
+  ],
+  "FlickReaction": [
+    "아앗! 깜짝 놀랐어!"
+  ],
+  "IdleTalk": [
+    "뭔가… 잘될 것 같아!"
+  ],
+  "Attention": [
+    "같이 놀자!"
+  ],
+  "Meal": [
+    "잘 먹었어! 맛있다…!"
+  ],
+  "Snack": [
+    "같이 먹으니까 더 맛있네!"
+  ],
+  "WaterReaction": [
+    "휴… 목이 안 마르네!"
+  ],
+  "PraiseReaction": [
+    "헤헤… 정말?"
+  ],
+  "SootheReaction": [
+    "응, 이제 괜찮아!"
+  ],
+  "RefuseReaction": [
+    "그럼 다음에 먹자!"
+  ],
+  "WakeReaction": [
+    "아… 깜빡 잠들었네!"
+  ],
+  "Meal:jiro-ramen": [
+    "면이 쫄깃해…!"
+  ]
+}

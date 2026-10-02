@@ -1,0 +1,58 @@
+{
+  "CharacterId": "ode",
+  "DisplayName": "오데",
+  "AssetSet": "ode",
+  "DialogueSetId": "ode",
+  "AnimationSetId": "ode",
+  "WanderFrequency": 0.12,
+  "Clinginess": 0.35,
+  "Playfulness": 0.3,
+  "Timidity": 0.15,
+  "Mischief": 0.1,
+  "Patience": 0.9,
+  "FoodLove": 0.78,
+  "SnackLove": 0.94,
+  "Sleepiness": 0.55,
+  "FavoriteFoods": [
+    "meal",
+    "nuts"
+  ],
+  "FavoriteSnacks": [
+    "cookie"
+  ],
+  "FavoriteToys": [
+    "ball"
+  ],
+  "PreferredBeds": [
+    "cushion"
+  ],
+  "BehaviorModifiers": {
+    "Idle": 1
+  },
+  "RelationshipModifiers": {
+    "Snack": 1.1,
+    "Pet": 1.0
+  },
+  "Theme": {
+    "Name": "오데",
+    "Background": "#F8FCF7",
+    "Surface": "#FFFFFF",
+    "Ink": "#493C3C",
+    "Muted": "#897774",
+    "Accent": "#BEAB5D",
+    "Soft": "#F8F2D6",
+    "Border": "#CBDDC8",
+    "Healthy": "#66AFA3",
+    "Warning": "#C89445",
+    "Critical": "#CE738B",
+    "CornerRadius": 18
+  },
+  "TalkFrequency": 0.14,
+  "Category": "치이카와 · 괴물",
+  "Description": "말수는 적지만 다정한 힘센 친구",
+  "ItemPreferences": {
+    "meal": 1.5,
+    "jiro-ramen": 1.5,
+    "beer": 1
+  }
+}

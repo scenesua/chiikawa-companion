@@ -1,0 +1,58 @@
+{
+  "CharacterId": "rakko",
+  "DisplayName": "랏코",
+  "AssetSet": "rakko",
+  "DialogueSetId": "rakko",
+  "AnimationSetId": "rakko",
+  "WanderFrequency": 0.22,
+  "Clinginess": 0.35,
+  "Playfulness": 0.4,
+  "Timidity": 0.15,
+  "Mischief": 0.12,
+  "Patience": 0.9,
+  "FoodLove": 0.78,
+  "SnackLove": 0.94,
+  "Sleepiness": 0.45,
+  "FavoriteFoods": [
+    "meal"
+  ],
+  "FavoriteSnacks": [
+    "pudding",
+    "dessert"
+  ],
+  "FavoriteToys": [
+    "ball"
+  ],
+  "PreferredBeds": [
+    "cushion"
+  ],
+  "BehaviorModifiers": {
+    "Idle": 1
+  },
+  "RelationshipModifiers": {
+    "Snack": 1.1,
+    "Pet": 1.0
+  },
+  "Theme": {
+    "Name": "Vanilla Star",
+    "Background": "#FFFDF5",
+    "Surface": "#FFFFFF",
+    "Ink": "#493C3C",
+    "Muted": "#897774",
+    "Accent": "#AA945E",
+    "Soft": "#F5EDD4",
+    "Border": "#E4D9B7",
+    "Healthy": "#66AFA3",
+    "Warning": "#C89445",
+    "Critical": "#CE738B",
+    "CornerRadius": 18
+  },
+  "TalkFrequency": 0.18,
+  "Category": "치이카와",
+  "Description": "침착하고 든든한 선생님",
+  "ItemPreferences": {
+    "pudding": 1.6,
+    "dessert": 1.5,
+    "beer": 0.55
+  }
+}

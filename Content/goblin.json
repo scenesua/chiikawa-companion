@@ -1,0 +1,58 @@
+{
+  "CharacterId": "goblin",
+  "DisplayName": "고블린",
+  "AssetSet": "goblin",
+  "DialogueSetId": "goblin",
+  "AnimationSetId": "goblin",
+  "WanderFrequency": 0.22,
+  "Clinginess": 0.35,
+  "Playfulness": 0.35,
+  "Timidity": 0.15,
+  "Mischief": 0.4,
+  "Patience": 0.7,
+  "FoodLove": 0.78,
+  "SnackLove": 0.94,
+  "Sleepiness": 0.45,
+  "FavoriteFoods": [
+    "meal",
+    "nuts"
+  ],
+  "FavoriteSnacks": [
+    "cookie"
+  ],
+  "FavoriteToys": [
+    "ball"
+  ],
+  "PreferredBeds": [
+    "cushion"
+  ],
+  "BehaviorModifiers": {
+    "Idle": 1
+  },
+  "RelationshipModifiers": {
+    "Snack": 1.1,
+    "Pet": 1.0
+  },
+  "Theme": {
+    "Name": "고블린",
+    "Background": "#F8FCF7",
+    "Surface": "#FFFFFF",
+    "Ink": "#493C3C",
+    "Muted": "#897774",
+    "Accent": "#7BA56A",
+    "Soft": "#EAF3DF",
+    "Border": "#CBDDC8",
+    "Healthy": "#66AFA3",
+    "Warning": "#C89445",
+    "Critical": "#CE738B",
+    "CornerRadius": 18
+  },
+  "TalkFrequency": 0.18,
+  "Category": "치이카와 · 괴물",
+  "Description": "요리책을 살피는 작은 초록 친구",
+  "ItemPreferences": {
+    "curry-rice": 1.4,
+    "jiro-ramen": 1.2,
+    "meal": 1.2
+  }
+}

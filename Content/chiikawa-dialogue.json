@@ -1,0 +1,67 @@
+{
+  "Hungry": [
+    "…",
+    "아…"
+  ],
+  "Thirsty": [
+    "…"
+  ],
+  "SnackRequest": [
+    "…"
+  ],
+  "Happy": [
+    "와…!",
+    "응…!"
+  ],
+  "Annoyed": [
+    "…!?",
+    "으…"
+  ],
+  "Sleepy": [
+    "…"
+  ],
+  "Greeting": [
+    "아…",
+    "아…"
+  ],
+  "ReturnGreeting": [
+    "응…!"
+  ],
+  "PetReaction": [
+    "…♪",
+    "응…"
+  ],
+  "FlickReaction": [
+    "아…!",
+    "으…!"
+  ],
+  "IdleTalk": [
+    "…",
+    "와…"
+  ],
+  "Attention": [
+    "…?"
+  ],
+  "Meal": [
+    "응…!",
+    "와…!"
+  ],
+  "Snack": [
+    "와…!"
+  ],
+  "WaterReaction": [
+    "아…"
+  ],
+  "PraiseReaction": [
+    "응…!"
+  ],
+  "SootheReaction": [
+    "…응."
+  ],
+  "RefuseReaction": [
+    "으…"
+  ],
+  "WakeReaction": [
+    "아…?"
+  ]
+}

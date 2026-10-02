@@ -1,0 +1,71 @@
+{
+  "Hungry": [
+    "우라!",
+    "야하!"
+  ],
+  "Thirsty": [
+    "우라…"
+  ],
+  "SnackRequest": [
+    "야하!",
+    "푸루야!"
+  ],
+  "Happy": [
+    "야하!",
+    "푸루야!"
+  ],
+  "Annoyed": [
+    "하아?",
+    "훙…"
+  ],
+  "Sleepy": [
+    "…"
+  ],
+  "Greeting": [
+    "야하!",
+    "우라!"
+  ],
+  "ReturnGreeting": [
+    "야하하!"
+  ],
+  "PetReaction": [
+    "훙♪",
+    "야하!"
+  ],
+  "FlickReaction": [
+    "하아!?",
+    "우라!!"
+  ],
+  "IdleTalk": [
+    "푸루루루…",
+    "야하!"
+  ],
+  "Attention": [
+    "우라!",
+    "야하!"
+  ],
+  "Meal": [
+    "야하!",
+    "우라!"
+  ],
+  "Snack": [
+    "푸루야!",
+    "야하!"
+  ],
+  "WaterReaction": [
+    "훙!"
+  ],
+  "PraiseReaction": [
+    "야하하!"
+  ],
+  "SootheReaction": [
+    "훙…"
+  ],
+  "RefuseReaction": [
+    "하아!?",
+    "우라!!"
+  ],
+  "WakeReaction": [
+    "우라!"
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "Hungry": [
+    "…"
+  ],
+  "Thirsty": [
+    "…"
+  ],
+  "SnackRequest": [
+    "…"
+  ],
+  "Happy": [
+    "하아…"
+  ],
+  "Annoyed": [
+    "…?"
+  ],
+  "Sleepy": [
+    "…"
+  ],
+  "Greeting": [
+    "…"
+  ],
+  "ReturnGreeting": [
+    "…"
+  ],
+  "PetReaction": [
+    "…"
+  ],
+  "FlickReaction": [
+    "…!"
+  ],
+  "IdleTalk": [
+    "하아…",
+    "…"
+  ],
+  "Attention": [
+    "…"
+  ],
+  "Meal": [
+    "…",
+    "하아…"
+  ],
+  "Snack": [
+    "…"
+  ],
+  "WaterReaction": [
+    "…"
+  ],
+  "PraiseReaction": [
+    "…"
+  ],
+  "SootheReaction": [
+    "…"
+  ],
+  "RefuseReaction": [
+    "…"
+  ],
+  "WakeReaction": [
+    "…?"
+  ],
+  "Snack:beer": [
+    "하아―…"
+  ]
+}

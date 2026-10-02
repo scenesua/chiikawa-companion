@@ -1,0 +1,57 @@
+{
+  "CharacterId": "kuromi",
+  "DisplayName": "쿠로미",
+  "AssetSet": "kuromi",
+  "DialogueSetId": "kuromi",
+  "AnimationSetId": "kuromi",
+  "WanderFrequency": 0.38,
+  "Clinginess": 0.35,
+  "Playfulness": 0.8,
+  "Timidity": 0.15,
+  "Mischief": 0.85,
+  "Patience": 0.4,
+  "FoodLove": 0.78,
+  "SnackLove": 0.94,
+  "Sleepiness": 0.4,
+  "FavoriteFoods": [
+    "furikake-rice"
+  ],
+  "FavoriteSnacks": [
+    "pudding"
+  ],
+  "FavoriteToys": [
+    "ball"
+  ],
+  "PreferredBeds": [
+    "nest"
+  ],
+  "BehaviorModifiers": {
+    "Idle": 1
+  },
+  "RelationshipModifiers": {
+    "Snack": 1.1,
+    "Pet": 1.0
+  },
+  "Theme": {
+    "Name": "쿠로미",
+    "Background": "#FAF7FD",
+    "Surface": "#FFFFFF",
+    "Ink": "#3E324E",
+    "Muted": "#897774",
+    "Accent": "#796395",
+    "Soft": "#EDE1F5",
+    "Border": "#EDE1F5",
+    "Healthy": "#66AFA3",
+    "Warning": "#C89445",
+    "Critical": "#CE738B",
+    "CornerRadius": 18
+  },
+  "TalkFrequency": 0.58,
+  "Category": "마이멜로디",
+  "Description": "검은 두건 속에 소녀다운 마음을 감춘 장난꾸러기",
+  "ItemPreferences": {
+    "pudding": 1.5,
+    "furikake-rice": 1.2,
+    "beer": 0.3
+  }
+}

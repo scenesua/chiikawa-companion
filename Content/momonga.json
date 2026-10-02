@@ -1,0 +1,52 @@
+{
+  "CharacterId": "momonga",
+  "DisplayName": "모몽가",
+  "AssetSet": "momonga",
+  "DialogueSetId": "momonga",
+  "AnimationSetId": "momonga",
+  "WanderFrequency": 0.25,
+  "Clinginess": 0.7,
+  "Playfulness": 0.72,
+  "Timidity": 0.28,
+  "Mischief": 0.78,
+  "Patience": 0.38,
+  "FoodLove": 0.78,
+  "SnackLove": 0.94,
+  "Sleepiness": 0.55,
+  "FavoriteFoods": [
+    "nuts"
+  ],
+  "FavoriteSnacks": [
+    "dessert",
+    "special-snack"
+  ],
+  "FavoriteToys": [
+    "doll"
+  ],
+  "PreferredBeds": [
+    "beanbag",
+    "nest"
+  ],
+  "BehaviorModifiers": {
+    "Idle": 1.25
+  },
+  "RelationshipModifiers": {
+    "Snack": 1.1,
+    "Pet": 1.0
+  },
+  "Theme": {
+    "Name": "Cloud Lavender",
+    "Background": "#FAF8FF",
+    "Surface": "#FFFFFF",
+    "Ink": "#39334C",
+    "Muted": "#756D89",
+    "Accent": "#8A78B4",
+    "Soft": "#EEE7FA",
+    "Border": "#D9D0EA",
+    "Healthy": "#66AFA3",
+    "Warning": "#C89445",
+    "Critical": "#CE738B",
+    "CornerRadius": 18
+  },
+  "TalkFrequency": 0.65
+}

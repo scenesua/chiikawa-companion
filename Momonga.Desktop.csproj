@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <Resource Include="Assets\*.png" />
+    <Resource Include="Assets\references\*.png" />
+    <Resource Include="Assets\*.json" Exclude="Assets\character-generation.json;Assets\meal-generation.json;Assets\additions-generation.json;Assets\drinking-generation.json" />
+    <Resource Include="Content\*.json" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,58 @@
+{
+  "CharacterId": "korilakkuma",
+  "DisplayName": "코리락쿠마",
+  "AssetSet": "korilakkuma",
+  "DialogueSetId": "korilakkuma",
+  "AnimationSetId": "korilakkuma",
+  "WanderFrequency": 0.22,
+  "Clinginess": 0.35,
+  "Playfulness": 0.75,
+  "Timidity": 0.15,
+  "Mischief": 0.72,
+  "Patience": 0.55,
+  "FoodLove": 0.78,
+  "SnackLove": 0.94,
+  "Sleepiness": 0.58,
+  "FavoriteFoods": [
+    "fruit"
+  ],
+  "FavoriteSnacks": [
+    "dessert",
+    "cookie"
+  ],
+  "FavoriteToys": [
+    "ball"
+  ],
+  "PreferredBeds": [
+    "cushion"
+  ],
+  "BehaviorModifiers": {
+    "Idle": 1
+  },
+  "RelationshipModifiers": {
+    "Snack": 1.1,
+    "Pet": 1.0
+  },
+  "Theme": {
+    "Name": "Strawberry Cream",
+    "Background": "#FFF9F6",
+    "Surface": "#FFFFFF",
+    "Ink": "#493C3C",
+    "Muted": "#897774",
+    "Accent": "#C68B98",
+    "Soft": "#F8E7E8",
+    "Border": "#E9CCCE",
+    "Healthy": "#66AFA3",
+    "Warning": "#C89445",
+    "Critical": "#CE738B",
+    "CornerRadius": 18
+  },
+  "TalkFrequency": 0.1,
+  "Category": "리락쿠마",
+  "Description": "장난과 딸기를 좋아하는 작은 곰",
+  "ItemPreferences": {
+    "dessert": 1.7,
+    "fruit": 1.6,
+    "beer": 0.05
+  }
+}

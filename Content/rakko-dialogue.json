@@ -1,0 +1,62 @@
+{
+  "Hungry": [
+    "식사부터 할까."
+  ],
+  "Thirsty": [
+    "물 한 모금 하자."
+  ],
+  "SnackRequest": [
+    "달콤한 것도 괜찮겠군."
+  ],
+  "Happy": [
+    "좋군."
+  ],
+  "Annoyed": [
+    "그만하자."
+  ],
+  "Sleepy": [
+    "잠깐 쉬도록 하지."
+  ],
+  "Greeting": [
+    "왔나."
+  ],
+  "ReturnGreeting": [
+    "잘 돌아왔다."
+  ],
+  "PetReaction": [
+    "…고맙다."
+  ],
+  "FlickReaction": [
+    "…!"
+  ],
+  "IdleTalk": [
+    "쉬어 가도 된다."
+  ],
+  "Attention": [
+    "무리하지 마라."
+  ],
+  "Meal": [
+    "잘 먹었다."
+  ],
+  "Snack": [
+    "잠깐 쉬면서 먹도록 하지."
+  ],
+  "WaterReaction": [
+    "수분도 챙겨라."
+  ],
+  "PraiseReaction": [
+    "너도 잘하고 있다."
+  ],
+  "SootheReaction": [
+    "…고맙다."
+  ],
+  "RefuseReaction": [
+    "그럼 다음에 먹지."
+  ],
+  "WakeReaction": [
+    "…무슨 일이지?"
+  ],
+  "Snack:pudding": [
+    "…좋군."
+  ]
+}

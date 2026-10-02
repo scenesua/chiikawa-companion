@@ -1,0 +1,59 @@
+{
+  "Hungry": [
+    "…"
+  ],
+  "Thirsty": [
+    "…"
+  ],
+  "SnackRequest": [
+    "…"
+  ],
+  "Happy": [
+    "…"
+  ],
+  "Annoyed": [
+    "…"
+  ],
+  "Sleepy": [
+    "…"
+  ],
+  "Greeting": [
+    "…"
+  ],
+  "ReturnGreeting": [
+    "…"
+  ],
+  "PetReaction": [
+    "…"
+  ],
+  "FlickReaction": [
+    "…"
+  ],
+  "IdleTalk": [
+    "…"
+  ],
+  "Attention": [
+    "…"
+  ],
+  "Meal": [
+    "…"
+  ],
+  "Snack": [
+    "…"
+  ],
+  "WaterReaction": [
+    "…"
+  ],
+  "PraiseReaction": [
+    "…"
+  ],
+  "SootheReaction": [
+    "…"
+  ],
+  "RefuseReaction": [
+    "…"
+  ],
+  "WakeReaction": [
+    "…"
+  ]
+}

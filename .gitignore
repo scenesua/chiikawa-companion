@@ -1,0 +1,9 @@
+bin/
+obj/
+.vs/
+self-test-error.txt
+dist/
+dist-latest/
+*.user
+*.suo
+__pycache__/

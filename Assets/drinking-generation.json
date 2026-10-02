@@ -1,0 +1,45 @@
+{
+  "tool": "built-in image_gen",
+  "atlases": {
+    "drinking-0": {
+      "characters": [
+        "chiikawa",
+        "hachiware",
+        "usagi",
+        "kurimanju"
+      ],
+      "source": "C:\\Users\\shlim\\.codex\\generated_images\\01a0f713-55d5-7660-9bb9-562f3d16a324\\exec-6b787ecc-7b60-40e5-9605-edab4d194034.png",
+      "prompt": "Create a transparent ACTOR-ONLY WATER DRINKING sprite sheet of EXACTLY 8 entire isolated whole-body poses, 2 columns by 4 rows. Every row depicts ONE distinct character from the corresponding reference in order. Row1 chiikawa reference1, row2 hachiware reference2, row3 usagi reference3, row4 kurimanju reference4. Identity and anatomy precisely match references. Flat original 2D anime/comic look. Generous clear gutters, entire ears/tails/feet inside cells, no overlapping neighboring poses, NO labels or text.\nIn EVERY ROW: column A character crouches or bends toward a PLACED water bowl position ahead of its feet, head lowered and lips/tongue slightly forward. Column B same posture/size, tongue retracts or a small satisfied lip lick. Mouth clearly reaching toward empty space in front of feet; NOT a human drinking from a spoon. Bowl is separately rendered by game so NEVER DRAW THE BOWL, CUP, GLASS OR WATER CONTAINER.\nABSOLUTELY NO SPOON, CHOPSTICKS, FORK, FOOD, HUMAN HAND, HUMAN FINGERS, FURNITURE in ANY CELL. Own rounded paws rest on ground or knees, empty paws only. No floating drops, sparkle, decorations, shadows or floor.\nReferences are identity only: remove ALL utensils/food from references; draw the specified drinking-only poses. Character has unchanged canonical proportions. Ode if present stays his original huge muscular one-eyed beige physique, NOT chibi. Anoko if present retains organic fluffy scalloped white chest fur, not a heart emblem. Rilakkuma if present brown bear with cream snout/belly; Korilakkuma cream bear with red button. My Melody pink hood with blue flower and folded ear, Kuromi black jester hood pink skull. Each pair same body scale and same foot baseline."
+    },
+    "drinking-1": {
+      "characters": [
+        "shisa",
+        "kani",
+        "rakko",
+        "anoko"
+      ],
+      "source": "C:\\Users\\shlim\\.codex\\generated_images\\01a0f713-55d5-7660-9bb9-562f3d16a324\\exec-2ef586ee-fa86-4de4-b08d-754a6d2c41c3.png",
+      "prompt": "Create a transparent ACTOR-ONLY WATER DRINKING sprite sheet of EXACTLY 8 entire isolated whole-body poses, 2 columns by 4 rows. Every row depicts ONE distinct character from the corresponding reference in order. Row1 shisa reference1, row2 kani reference2, row3 rakko reference3, row4 anoko reference4. Identity and anatomy precisely match references. Flat original 2D anime/comic look. Generous clear gutters, entire ears/tails/feet inside cells, no overlapping neighboring poses, NO labels or text.\nIn EVERY ROW: column A character crouches or bends toward a PLACED water bowl position ahead of its feet, head lowered and lips/tongue slightly forward. Column B same posture/size, tongue retracts or a small satisfied lip lick. Mouth clearly reaching toward empty space in front of feet; NOT a human drinking from a spoon. Bowl is separately rendered by game so NEVER DRAW THE BOWL, CUP, GLASS OR WATER CONTAINER.\nABSOLUTELY NO SPOON, CHOPSTICKS, FORK, FOOD, HUMAN HAND, HUMAN FINGERS, FURNITURE in ANY CELL. Own rounded paws rest on ground or knees, empty paws only. No floating drops, sparkle, decorations, shadows or floor.\nReferences are identity only: remove ALL utensils/food from references; draw the specified drinking-only poses. Character has unchanged canonical proportions. Ode if present stays his original huge muscular one-eyed beige physique, NOT chibi. Anoko if present retains organic fluffy scalloped white chest fur, not a heart emblem. Rilakkuma if present brown bear with cream snout/belly; Korilakkuma cream bear with red button. My Melody pink hood with blue flower and folded ear, Kuromi black jester hood pink skull. Each pair same body scale and same foot baseline."
+    },
+    "drinking-2": {
+      "characters": [
+        "goblin",
+        "chiikabu",
+        "ode",
+        "rilakkuma"
+      ],
+      "source": "C:\\Users\\shlim\\.codex\\generated_images\\01a0f713-55d5-7660-9bb9-562f3d16a324\\exec-78778b53-04ea-44f3-ab8b-748d7484f41b.png",
+      "prompt": "Create a transparent ACTOR-ONLY WATER DRINKING sprite sheet of EXACTLY 8 entire isolated whole-body poses, 2 columns by 4 rows. Every row depicts ONE distinct character from the corresponding reference in order. Row1 goblin reference1, row2 chiikabu reference2, row3 ode reference3, row4 rilakkuma reference4. Identity and anatomy precisely match references. Flat original 2D anime/comic look. Generous clear gutters, entire ears/tails/feet inside cells, no overlapping neighboring poses, NO labels or text.\nIn EVERY ROW: column A character crouches or bends toward a PLACED water bowl position ahead of its feet, head lowered and lips/tongue slightly forward. Column B same posture/size, tongue retracts or a small satisfied lip lick. Mouth clearly reaching toward empty space in front of feet; NOT a human drinking from a spoon. Bowl is separately rendered by game so NEVER DRAW THE BOWL, CUP, GLASS OR WATER CONTAINER.\nABSOLUTELY NO SPOON, CHOPSTICKS, FORK, FOOD, HUMAN HAND, HUMAN FINGERS, FURNITURE in ANY CELL. Own rounded paws rest on ground or knees, empty paws only. No floating drops, sparkle, decorations, shadows or floor.\nReferences are identity only: remove ALL utensils/food from references; draw the specified drinking-only poses. Character has unchanged canonical proportions. Ode if present stays his original huge muscular one-eyed beige physique, NOT chibi. Anoko if present retains organic fluffy scalloped white chest fur, not a heart emblem. Rilakkuma if present brown bear with cream snout/belly; Korilakkuma cream bear with red button. My Melody pink hood with blue flower and folded ear, Kuromi black jester hood pink skull. Each pair same body scale and same foot baseline."
+    },
+    "drinking-3": {
+      "characters": [
+        "korilakkuma",
+        "mymelody",
+        "kuromi",
+        "dekatsuyo"
+      ],
+      "source": "C:\\Users\\shlim\\.codex\\generated_images\\01a0f713-55d5-7660-9bb9-562f3d16a324\\exec-676c5452-9451-4444-94b8-f5e32c0d8539.png",
+      "prompt": "Create a transparent ACTOR-ONLY WATER DRINKING sprite sheet of EXACTLY 8 entire isolated whole-body poses, 2 columns by 4 rows. Every row depicts ONE distinct character from the corresponding reference in order. Row1 korilakkuma reference1, row2 mymelody reference2, row3 kuromi reference3, row4 dekatsuyo reference4. Identity and anatomy precisely match references. Flat original 2D anime/comic look. Generous clear gutters, entire ears/tails/feet inside cells, no overlapping neighboring poses, NO labels or text.\nIn EVERY ROW: column A character crouches or bends toward a PLACED water bowl position ahead of its feet, head lowered and lips/tongue slightly forward. Column B same posture/size, tongue retracts or a small satisfied lip lick. Mouth clearly reaching toward empty space in front of feet; NOT a human drinking from a spoon. Bowl is separately rendered by game so NEVER DRAW THE BOWL, CUP, GLASS OR WATER CONTAINER.\nABSOLUTELY NO SPOON, CHOPSTICKS, FORK, FOOD, HUMAN HAND, HUMAN FINGERS, FURNITURE in ANY CELL. Own rounded paws rest on ground or knees, empty paws only. No floating drops, sparkle, decorations, shadows or floor.\nReferences are identity only: remove ALL utensils/food from references; draw the specified drinking-only poses. Character has unchanged canonical proportions. Ode if present stays his original huge muscular one-eyed beige physique, NOT chibi. Anoko if present retains organic fluffy scalloped white chest fur, not a heart emblem. Rilakkuma if present brown bear with cream snout/belly; Korilakkuma cream bear with red button. My Melody pink hood with blue flower and folded ear, Kuromi black jester hood pink skull. Each pair same body scale and same foot baseline."
+    }
+  }
+}

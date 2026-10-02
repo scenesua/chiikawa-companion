@@ -1,0 +1,58 @@
+{
+  "CharacterId": "anoko",
+  "DisplayName": "아노코",
+  "AssetSet": "anoko",
+  "DialogueSetId": "anoko",
+  "AnimationSetId": "anoko",
+  "WanderFrequency": 0.35,
+  "Clinginess": 0.35,
+  "Playfulness": 0.65,
+  "Timidity": 0.15,
+  "Mischief": 0.6,
+  "Patience": 0.45,
+  "FoodLove": 0.78,
+  "SnackLove": 0.94,
+  "Sleepiness": 0.45,
+  "FavoriteFoods": [
+    "meal",
+    "nuts"
+  ],
+  "FavoriteSnacks": [
+    "cookie"
+  ],
+  "FavoriteToys": [
+    "ball"
+  ],
+  "PreferredBeds": [
+    "cushion"
+  ],
+  "BehaviorModifiers": {
+    "Idle": 1
+  },
+  "RelationshipModifiers": {
+    "Snack": 1.1,
+    "Pet": 1.0
+  },
+  "Theme": {
+    "Name": "Forest Horn",
+    "Background": "#F8FCF7",
+    "Surface": "#FFFFFF",
+    "Ink": "#493C3C",
+    "Muted": "#897774",
+    "Accent": "#719A7B",
+    "Soft": "#E4F0E2",
+    "Border": "#CBDDC8",
+    "Healthy": "#66AFA3",
+    "Warning": "#C89445",
+    "Critical": "#CE738B",
+    "CornerRadius": 18
+  },
+  "TalkFrequency": 0.06,
+  "Category": "치이카와 · 괴물",
+  "Description": "말없이 웃으며 돌아다니는 친구",
+  "ItemPreferences": {
+    "meal": 1.4,
+    "nuts": 1.3,
+    "beer": 0.25
+  }
+}

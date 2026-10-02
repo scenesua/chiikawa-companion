@@ -1,0 +1,57 @@
+{
+  "CharacterId": "shisa",
+  "DisplayName": "시사",
+  "AssetSet": "shisa",
+  "DialogueSetId": "shisa",
+  "AnimationSetId": "shisa",
+  "WanderFrequency": 0.26,
+  "Clinginess": 0.35,
+  "Playfulness": 0.55,
+  "Timidity": 0.15,
+  "Mischief": 0.15,
+  "Patience": 0.85,
+  "FoodLove": 0.78,
+  "SnackLove": 0.94,
+  "Sleepiness": 0.4,
+  "FavoriteFoods": [
+    "jiro-ramen"
+  ],
+  "FavoriteSnacks": [
+    "cookie",
+    "pudding"
+  ],
+  "FavoriteToys": [
+    "ball"
+  ],
+  "PreferredBeds": [
+    "cushion"
+  ],
+  "BehaviorModifiers": {
+    "Idle": 1
+  },
+  "RelationshipModifiers": {
+    "Snack": 1.1,
+    "Pet": 1.0
+  },
+  "Theme": {
+    "Name": "Peach Guardian",
+    "Background": "#FFF9F3",
+    "Surface": "#FFFFFF",
+    "Ink": "#493C3C",
+    "Muted": "#897774",
+    "Accent": "#C88667",
+    "Soft": "#FBE6D8",
+    "Border": "#E8CDBB",
+    "Healthy": "#66AFA3",
+    "Warning": "#C89445",
+    "Critical": "#CE738B",
+    "CornerRadius": 18
+  },
+  "TalkFrequency": 0.48,
+  "Category": "치이카와",
+  "Description": "성실하고 예의 바른 친구",
+  "ItemPreferences": {
+    "jiro-ramen": 1.6,
+    "beer": 0.4
+  }
+}

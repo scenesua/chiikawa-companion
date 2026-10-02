@@ -1,0 +1,59 @@
+{
+  "CharacterId": "kurimanju",
+  "DisplayName": "쿠리만쥬",
+  "AssetSet": "kurimanju",
+  "DialogueSetId": "kurimanju",
+  "AnimationSetId": "kurimanju",
+  "WanderFrequency": 0.1,
+  "Clinginess": 0.35,
+  "Playfulness": 0.2,
+  "Timidity": 0.15,
+  "Mischief": 0.1,
+  "Patience": 0.9,
+  "FoodLove": 0.78,
+  "SnackLove": 0.94,
+  "Sleepiness": 0.7,
+  "FavoriteFoods": [
+    "furikake-rice",
+    "jiro-ramen"
+  ],
+  "FavoriteSnacks": [
+    "beer",
+    "dorayaki"
+  ],
+  "FavoriteToys": [
+    "ball"
+  ],
+  "PreferredBeds": [
+    "cushion"
+  ],
+  "BehaviorModifiers": {
+    "Idle": 1.4
+  },
+  "RelationshipModifiers": {
+    "Snack": 1.1,
+    "Pet": 1.0
+  },
+  "Theme": {
+    "Name": "Chestnut Cream",
+    "Background": "#FFF9F1",
+    "Surface": "#FFFFFF",
+    "Ink": "#493C3C",
+    "Muted": "#897774",
+    "Accent": "#9C765A",
+    "Soft": "#F3E6D5",
+    "Border": "#E2CDB8",
+    "Healthy": "#66AFA3",
+    "Warning": "#C89445",
+    "Critical": "#CE738B",
+    "CornerRadius": 18
+  },
+  "TalkFrequency": 0.08,
+  "Category": "치이카와",
+  "Description": "하아… 느긋하게 먹고 쉬는 선배",
+  "ItemPreferences": {
+    "beer": 1.7,
+    "nuts": 1.25,
+    "dessert": 0.85
+  }
+}

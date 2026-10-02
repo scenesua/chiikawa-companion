@@ -1,0 +1,58 @@
+{
+  "CharacterId": "chiikawa",
+  "DisplayName": "치이카와",
+  "AssetSet": "chiikawa",
+  "DialogueSetId": "chiikawa",
+  "AnimationSetId": "chiikawa",
+  "WanderFrequency": 0.14,
+  "Clinginess": 0.6,
+  "Playfulness": 0.35,
+  "Timidity": 0.8,
+  "Mischief": 0.16,
+  "Patience": 0.8,
+  "FoodLove": 0.78,
+  "SnackLove": 0.94,
+  "Sleepiness": 0.6,
+  "FavoriteFoods": [
+    "meal",
+    "white-rice"
+  ],
+  "FavoriteSnacks": [
+    "cookie",
+    "pudding"
+  ],
+  "FavoriteToys": [
+    "ball"
+  ],
+  "PreferredBeds": [
+    "cushion"
+  ],
+  "BehaviorModifiers": {
+    "Idle": 1.4
+  },
+  "RelationshipModifiers": {
+    "Snack": 1.1,
+    "Pet": 1.0
+  },
+  "Theme": {
+    "Name": "Soft Rose",
+    "Background": "#FFF8FA",
+    "Surface": "#FFFFFF",
+    "Ink": "#493C3C",
+    "Muted": "#897774",
+    "Accent": "#C97896",
+    "Soft": "#FBE7EE",
+    "Border": "#EBCED8",
+    "Healthy": "#66AFA3",
+    "Warning": "#C89445",
+    "Critical": "#CE738B",
+    "CornerRadius": 18
+  },
+  "TalkFrequency": 0.14,
+  "Category": "치이카와",
+  "Description": "수줍고 다정한 작은 친구",
+  "ItemPreferences": {
+    "beer": 0.05,
+    "pudding": 1.2
+  }
+}

@@ -1,0 +1,208 @@
+[
+  {
+    "Id": "meal",
+    "Name": "기본 식사",
+    "Category": "Food",
+    "Price": 350,
+    "Hunger": 55,
+    "Mood": 3,
+    "AnimationFrame": 16,
+    "Utensil": "Chopsticks"
+  },
+  {
+    "Id": "nuts",
+    "Name": "견과류",
+    "Category": "Food",
+    "Price": 450,
+    "Hunger": 50,
+    "Mood": 8,
+    "AnimationFrame": 20
+  },
+  {
+    "Id": "fruit",
+    "Name": "과일",
+    "Category": "Food",
+    "Price": 500,
+    "Hunger": 50,
+    "Mood": 6,
+    "AnimationFrame": 22
+  },
+  {
+    "Id": "cookie",
+    "Name": "쿠키",
+    "Category": "Snack",
+    "Price": 250,
+    "Hunger": 10,
+    "Mood": 16,
+    "Fun": 15,
+    "Affection": 0.7,
+    "AnimationFrame": 0
+  },
+  {
+    "Id": "dessert",
+    "Name": "작은 디저트",
+    "Category": "Snack",
+    "Price": 450,
+    "Hunger": 12,
+    "Mood": 22,
+    "Fun": 20,
+    "Affection": 1.2,
+    "AnimationFrame": 2,
+    "Utensil": "Spoon"
+  },
+  {
+    "Id": "special-snack",
+    "Name": "특별 간식",
+    "Category": "Snack",
+    "Price": 650,
+    "Hunger": 15,
+    "Mood": 30,
+    "Fun": 28,
+    "Affection": 2,
+    "AnimationFrame": 4
+  },
+  {
+    "Id": "ball",
+    "Name": "공",
+    "Category": "Toy",
+    "Price": 2000
+  },
+  {
+    "Id": "doll",
+    "Name": "작은 인형",
+    "Category": "Toy",
+    "Price": 2500
+  },
+  {
+    "Id": "cushion",
+    "Name": "기본 방석",
+    "Category": "Bed",
+    "Price": 1500
+  },
+  {
+    "Id": "beanbag",
+    "Name": "빈백",
+    "Category": "Bed",
+    "Price": 4000
+  },
+  {
+    "Id": "nest",
+    "Name": "둥지",
+    "Category": "Bed",
+    "Price": 6500
+  },
+  {
+    "Id": "food-bowl",
+    "Name": "밥그릇",
+    "Category": "Habitat",
+    "Price": 800
+  },
+  {
+    "Id": "water-bowl",
+    "Name": "물그릇",
+    "Category": "Habitat",
+    "Price": 800
+  },
+  {
+    "Id": "quiet-sign",
+    "Name": "방해금지 팻말",
+    "Category": "Habitat",
+    "Price": 6000
+  },
+  {
+    "Id": "free-rice",
+    "Name": "무료 흰밥",
+    "Category": "Food",
+    "Price": 0,
+    "Hunger": 45,
+    "Mood": 1,
+    "Fun": 0,
+    "Thirst": 0,
+    "AnimationFrame": 16,
+    "Utensil": "Chopsticks"
+  },
+  {
+    "Id": "white-rice",
+    "Name": "흰밥",
+    "Category": "Food",
+    "Price": 350,
+    "Hunger": 55,
+    "Mood": 4,
+    "Fun": 0,
+    "Thirst": 0,
+    "AnimationFrame": 16,
+    "Utensil": "Chopsticks"
+  },
+  {
+    "Id": "furikake-rice",
+    "Name": "후리카게 흰밥",
+    "Category": "Food",
+    "Price": 650,
+    "Hunger": 65,
+    "Mood": 8,
+    "Fun": 0,
+    "Thirst": 0,
+    "AnimationFrame": 12,
+    "Utensil": "Chopsticks"
+  },
+  {
+    "Id": "curry-rice",
+    "Name": "카레 흰밥",
+    "Category": "Food",
+    "Price": 900,
+    "Hunger": 75,
+    "Mood": 10,
+    "Fun": 0,
+    "Thirst": 0,
+    "AnimationFrame": 14,
+    "Utensil": "Spoon"
+  },
+  {
+    "Id": "jiro-ramen",
+    "Name": "지로 라멘",
+    "Category": "Food",
+    "Price": 1400,
+    "Hunger": 85,
+    "Mood": 12,
+    "Fun": 0,
+    "Thirst": 0,
+    "AnimationFrame": 18,
+    "Utensil": "Chopsticks"
+  },
+  {
+    "Id": "dorayaki",
+    "Name": "도라야끼",
+    "Category": "Snack",
+    "Price": 500,
+    "Hunger": 15,
+    "Mood": 22,
+    "Fun": 15,
+    "Thirst": 0,
+    "AnimationFrame": 6,
+    "Utensil": "None"
+  },
+  {
+    "Id": "pudding",
+    "Name": "푸딩",
+    "Category": "Snack",
+    "Price": 450,
+    "Hunger": 12,
+    "Mood": 20,
+    "Fun": 15,
+    "Thirst": 0,
+    "AnimationFrame": 8,
+    "Utensil": "Spoon"
+  },
+  {
+    "Id": "beer",
+    "Name": "맥주",
+    "Category": "Drink",
+    "Price": 700,
+    "Hunger": 0,
+    "Mood": 10,
+    "Fun": 15,
+    "Thirst": 20,
+    "AnimationFrame": 10,
+    "Utensil": "None"
+  }
+]
