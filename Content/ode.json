@@ -47,9 +47,9 @@
     "Critical": "#CE738B",
     "CornerRadius": 18
   },
-  "TalkFrequency": 0.14,
+  "TalkFrequency": 0.35,
   "Category": "치이카와 · 괴물",
-  "Description": "말수는 적지만 다정한 힘센 친구",
+  "Description": "자신을 오데라고 부르며 소박한 문장으로 이야기하는 다정한 힘센 친구",
   "ItemPreferences": {
     "meal": 1.5,
     "jiro-ramen": 1.5,
