@@ -2,6 +2,8 @@
 
 Windows 버전과 첫 macOS 미리보기 버전을 함께 제공합니다. .NET 런타임이 포함되어 있어 별도 설치 없이 실행할 수 있습니다.
 
+**v0.3.1 배포 상태:** 새 Windows 파일을 제공합니다. macOS 업데이트 코드는 반영했지만 GitHub에서 이 계정의 Actions 실행을 차단하여 새 Mac 빌드·네이티브 검증을 진행하지 못했습니다. Mac 사용자는 검증된 [v0.3.0](https://github.com/scenesua/chiikawa-companion/releases/tag/v0.3.0)을 사용해 주세요. 계정 제한이 해제되면 macOS 파일을 함께 빌드할 수 있습니다.
+
 ## 다운로드와 실행
 
 - Windows x64: ZIP을 모두 풀고 `Momonga.Desktop.exe`를 실행하세요.
