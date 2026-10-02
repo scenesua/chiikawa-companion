@@ -5,7 +5,7 @@ on:
       version:
         description: New release tag
         required: true
-        default: v0.3.1
+        default: v0.3.2
 permissions:
   contents: read
 jobs:
@@ -107,8 +107,8 @@ jobs:
         with:
           pattern: '*'
           path: artifacts
-      - name: Publish prerelease after all checks pass
+      - name: Publish release after all checks pass
         env:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ inputs.version }}
-        run: gh release create "$VERSION" artifacts/Windows-x64/*.zip artifacts/macOS-Apple-Silicon/*.zip artifacts/macOS-Intel/*.zip --target "$GITHUB_SHA" --prerelease --title "Chiikawa Companion $VERSION · Windows + macOS Preview" --notes-file RELEASE-NOTES.md
+        run: gh release create "$VERSION" artifacts/Windows-x64/*.zip artifacts/macOS-Apple-Silicon/*.zip artifacts/macOS-Intel/*.zip --target "$GITHUB_SHA" --latest --title "Chiikawa Companion $VERSION · Windows + macOS" --notes-file RELEASE-NOTES.md

@@ -43,3 +43,15 @@ https://anna-movies.com/chiikawa/character/ode/
 https://www.sanrio.co.jp/characters/mymelody/
 https://www.sanrio.co.jp/characters/kuromi/
 두 캐릭터의 한국어 대사는 공식 애니메이션 대본 인용이 아닌 성격에 맞춘 앱용 창작입니다.
+
+## 데카츠요 대사 추가 (2026-10-02)
+
+공식 X 게시물의 원작 만화 이미지를 직접 읽고, 데카츠요가 문장으로 대화하며 조심스럽게 말리거나 상대의 반응을 걱정하는 말투를 확인했습니다. 오데의 1인칭·어미를 데카츠요에게 적용하지 않습니다. 낮은 말 걸기 빈도와 짧은 쉼은 유지하고, 식사·음수·간식·인사·쓰다듬기·딱밤·칭찬·달래기·거절·잠과 일상 대화의 19개 상황에 총 40개 후보를 제공합니다.
+
+- 원작 2022-12-07의 `やめなよ…` → `그만해…` (Annoyed, 자체 한국어 번역)
+  https://x.com/ngnchiikawa/status/1600295490696151041
+- 원작 2024-08-12의 `怒んないでよォ…` → `화내지 마아…` (RefuseReaction, 자체 한국어 번역)
+  https://x.com/ngnchiikawa/status/1822962651661836474
+
+두 짧은 자체 번역 이외의 대사는 원작 말투를 참고한 앱용 창작이며, 공식 한국어 번역이나 원작 직접 인용으로 표시하지 않습니다. 게시물 탐색에는 아래 비공식 등장 회차 목록을 사용했고, 대사는 목록 제목이 아닌 원작 이미지와 대조했습니다.
+https://chiikawa.hatenablog.jp/entry/character/dekatsuyo

@@ -26,7 +26,7 @@ public static class UpdateService
     private static HttpClient CreateClient()
     {
         var client = new HttpClient { Timeout = TimeSpan.FromMinutes(10) };
-        client.DefaultRequestHeaders.UserAgent.ParseAdd("Chiikawa-Companion/0.3.1");
+        client.DefaultRequestHeaders.UserAgent.ParseAdd("Chiikawa-Companion/"+CurrentLabel);
         client.DefaultRequestHeaders.CacheControl = new System.Net.Http.Headers.CacheControlHeaderValue { NoCache = true };
         return client;
     }

@@ -183,6 +183,13 @@ public static class LifeChecks
         Require(offline.Hunger <= 50 && offline.Social >= 30 && offline.Energy >= 35, "Long absence punished pet excessively");
         var dialogue = new DialogueService(data); var line = dialogue.Pick("SnackRequest");
         Require(dialogue.Pick("SnackRequest") != line, "Immediate dialogue repetition");
+        var dekatsuyo = CharacterDefinition.Load("dekatsuyo");
+        var dekaDialogue = new DialogueService(new SaveData(), dekatsuyo.DialogueSetId);
+        foreach (var tag in new[] {"Hungry","Thirsty","SnackRequest","Happy","Annoyed","Sleepy","Greeting","ReturnGreeting","PetReaction","FlickReaction","IdleTalk","Attention","Meal","Snack","WaterReaction","PraiseReaction","SootheReaction","RefuseReaction","WakeReaction"})
+        {
+            var first = dekaDialogue.Pick(tag); var second = dekaDialogue.Pick(tag);
+            Require(first != "…" && second != "…" && first != second, "Missing or repeating Dekatsuyo speech: " + tag);
+        }
         var requestLife = new LifeSimulation(new SaveData(), character, catalog);
         requestLife.Data.Pet.Hunger = 95; requestLife.RefreshContext(); requestLife.Brain.Force("AskFood", requestLife.Context);
         var requests = 0; requestLife.Speech += (tag, autonomous) => { if (tag == "Hungry" && autonomous) requests++; };
