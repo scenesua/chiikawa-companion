@@ -36,8 +36,8 @@ public static class LifeChecks
             speech.Say("가나다", speechAnchor); var emptyWidth = speech.Width;
             speech.RevealNext(); Require(speech.VisibleText == "가" && speech.Width + .5 >= emptyWidth, "Typewriter did not reveal one character");
             speech.RevealAll(); var shortHeight = speech.Height;
-            speech.Say(new string('가', 80), speechAnchor); speech.RevealAll();
-            Require(speech.Width <= 276 && speech.Height > shortHeight, "Speech bubble failed width cap or vertical wrapping");
+            speech.Say(new string('W', 160), speechAnchor); speech.RevealAll();
+            Require(speech.Width <= 276 && speech.Height > shortHeight, $"Speech bubble failed width cap or vertical wrapping: {speech.Width} x {speech.Height}, short {shortHeight}");
             speech.Say("새 대사", speechAnchor); Require(speech.VisibleText == "", "New speech did not cancel previous typing");
         }
         finally { speech.Close(); speechAnchor.Close(); }
