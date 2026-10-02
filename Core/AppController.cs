@@ -402,6 +402,13 @@ public sealed class AppController : IDisposable
             DebugCommand, life.Brain.Behaviors.Select(b => b.Name));
         debug.Show(); debug.Activate();
     }
+    public void ShowUpdate(Momonga.Updates.AvailableUpdate release)
+    {
+        var window = new UpdateWindow(release);
+        panels["Updates"] = window; window.Closed += (_, _) => panels.Remove("Updates");
+        window.PlaceHud(pet); window.Show(); window.Activate();
+    }
+
     public void CaptureUI()
     {
         var directory = Path.GetFullPath("obj/ui-check"); Directory.CreateDirectory(directory);
@@ -481,7 +488,8 @@ public sealed class AppController : IDisposable
         foreach (var (window, name) in new (Window, string)[] {
             (new RadialMenuWindow(life, () => pet.Portrait, Command), "radial"), (new SettingsWindow(life, pet.SetScale, Changed), "settings"),
             (new ShopWindow(life, Changed), "shop"), (new InventoryWindow(life, Changed), "inventory"),
-            (new CharacterPickerWindow(life.Data.CharacterId, _ => { }), "characters") })
+            (new CharacterPickerWindow(life.Data.CharacterId, _ => { }), "characters"),
+            (new UpdateWindow(new Momonga.Updates.AvailableUpdate(new Version(0,3,2), "오데 대사 수정\n실행 시 새 버전 확인", "", 154000000, "")), "updates") })
         { try { Capture(window, name); } finally { window.Close(); } }
         foreach (var (id, frame, name) in new[] { ("cushion", 0, "sit-scene"), ("food-bowl", 4, "eat-scene"), ("water-bowl", 6, "drink-scene") })
         {

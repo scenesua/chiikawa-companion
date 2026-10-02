@@ -35,6 +35,7 @@ public sealed partial class CompanionController : IDisposable
     private Window? panel,bubble;
     private TrayIcon? tray;
     private bool hidden,dragging,disposed;
+    private readonly System.Threading.CancellationTokenSource updateCancellation=new();
     private Point position,pointer,pressWorld;
     private PixelPoint pressScreen;
     private Point pressLocal;
@@ -240,7 +241,7 @@ public sealed partial class CompanionController : IDisposable
     private void Recall(){hidden=false;position=Clamp(position);pet.Show();SyncFurniture();}
     private void Hide(){hidden=true;pet.Hide();foreach(var f in furniture.Values)f.Window.Hide();panel?.Close();bubble?.Close();bubble=null;}
     private void Exit()=>desktop.Shutdown();
-    public void Dispose(){if(disposed)return;disposed=true;timer.Stop();activity.Dispose();if(!testing)save.SaveAsync(life.Data).GetAwaiter().GetResult();tray?.Dispose();panel?.Close();bubble?.Close();foreach(var f in furniture.Values)f.Window.Close();pet.Close();}
+    public void Dispose(){if(disposed)return;disposed=true;updateCancellation.Cancel();timer.Stop();activity.Dispose();if(!testing)save.SaveAsync(life.Data).GetAwaiter().GetResult();tray?.Dispose();panel?.Close();bubble?.Close();foreach(var f in furniture.Values)f.Window.Close();pet.Close();}
 }
 
 public sealed class SceneView:Control

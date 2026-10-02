@@ -4,6 +4,8 @@ Windows 10/11 · C# · .NET 8 · WPF 프로토타입.
 
 macOS 12 이상은 Avalonia 기반 별도 화면을 제공합니다. 욕구·성격·경제·저장 로직과 이미지 리소스는 공유합니다. [릴리즈](https://github.com/scenesua/chiikawa-companion/releases)에서 Windows x64, Apple Silicon, Intel Mac용 ZIP을 받을 수 있습니다. macOS는 미리보기이며 차이점과 실행 방법은 [RELEASE-NOTES.md](RELEASE-NOTES.md)에 있습니다.
 
+실행할 때마다 새 버전을 확인하고, 업데이트가 있을 때만 캐릭터 테마 HUD를 띄웁니다. 다운로드 진행률·취소와 SHA-256 검증을 제공하며 Windows는 저장 후 교체·재실행, Mac은 새 앱 폴더를 열어 수동 교체합니다. 최신 버전이거나 오프라인이면 안내를 띄우지 않습니다.
+
 ## 실행
 
 최신 배포 폴더 dist-latest의 Momonga.Desktop.exe를 실행합니다. 기존 버전이 실행 중이면 더보기 또는 트레이의 종료로 끈 뒤 새 버전을 실행합니다. .NET 8 Windows Desktop Runtime이 필요합니다.

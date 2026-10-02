@@ -23,6 +23,7 @@ public static class LifeChecks
 {
     public static void Run()
     {
+        Momonga.Updates.UpdateService.RunChecks();
         var catalog = ItemCatalog.Load(); var character = CharacterDefinition.Load();
         var mealInterval=new PetState { Hunger=5 };
         mealInterval.Update(3*3600); Require(mealInterval.Hunger<45,"Meal needed before three hours");

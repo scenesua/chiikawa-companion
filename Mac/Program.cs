@@ -31,6 +31,7 @@ public sealed class CompanionApp : Application
             {
                 var controller=new CompanionController(desktop,desktop.Args?.Contains("--ui-check")==true);
                 desktop.Exit+=(_,_)=>controller.Dispose(); controller.Start();
+                if(desktop.Args?.Contains("--ui-check")!=true) _=controller.CheckUpdatesAsync();
                 if(desktop.Args?.Contains("--ui-check")==true) DispatcherTimer.RunOnce(()=>
                 {
                     try { controller.CheckUI(); desktop.Shutdown(0); }

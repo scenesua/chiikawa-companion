@@ -10,7 +10,7 @@
   <ItemGroup>
     <PackageReference Include="Avalonia.Desktop" Version="11.3.22" />
     <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.22" />
-    <Compile Include="../AI/*.cs;../Character/*.cs;../Content/*.cs;../Economy/*.cs;../Habitat/*.cs;../Inventory/*.cs;../Persistence/*.cs;../Simulation/*.cs;../Input/*.cs" />
+    <Compile Include="../AI/*.cs;../Character/*.cs;../Content/*.cs;../Economy/*.cs;../Habitat/*.cs;../Inventory/*.cs;../Persistence/*.cs;../Simulation/*.cs;../Input/*.cs;../Updates/*.cs" />
     <EmbeddedResource Include="../Content/*.json" LogicalName="Content/%(Filename)%(Extension)" />
     <AvaloniaResource Include="../Assets/*.png;../Assets/*.json;../Assets/references/*.png" Link="Assets/%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>

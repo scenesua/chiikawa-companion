@@ -155,6 +155,7 @@ public sealed partial class CompanionController
         }
         Radial();Capture((Control)panel!.Content!,"radial");Characters();Capture((Control)panel!.Content!,"characters");Settings();Capture((Control)panel!.Content!,"settings");
         Items("밥 상점",i=>i.Category=="Food",true,null);Capture((Control)panel!.Content!,"shop");
+        ShowUpdate(new Momonga.Updates.AvailableUpdate(new Version(0,3,2),"오데 대사 수정\n실행 시 새 버전 확인","",154000000,""));Capture((Control)panel!.Content!,"updates");panel.Close();
         foreach(var item in life.Data.Items){ItemMenu(item);Capture((Control)panel!.Content!,item.ItemId);}
         Hide();if(tray?.IsVisible!=true||pet.IsVisible)throw new InvalidOperationException("Hidden pet lost tray recall");Recall();if(!pet.IsVisible)throw new InvalidOperationException("Recall failed");
         Switch("kuromi");if(life.Data.CharacterId!="kuromi")throw new InvalidOperationException("Character switch failed");

@@ -13,6 +13,7 @@ public partial class App : Application
     private EventWaitHandle? showPet;
     private RegisteredWaitHandle? showWait;
     private bool verification;
+    private readonly CancellationTokenSource updateCancellation = new();
 
     protected override void OnStartup(StartupEventArgs e)
     {
@@ -52,6 +53,7 @@ public partial class App : Application
         var recoveryCheck = Array.IndexOf(e.Args, "--recovery-check") >= 0;
         controller = new AppController(recoveryCheck);
         controller.Start();
+        if (!recoveryCheck) CheckUpdates();
         showWait = ThreadPool.RegisterWaitForSingleObject(showPet, (_, _) => Dispatcher.BeginInvoke(new Action(() => controller?.ShowPet())), null, Timeout.Infinite, false);
         if (recoveryCheck) Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, new Action(() => controller.CheckRecovery(() => Shutdown(0))));
     }
@@ -65,8 +67,19 @@ public partial class App : Application
         controller.Dispose(); controller = new AppController(verification, data); controller.Start();
     }
 
+    private async void CheckUpdates()
+    {
+        try
+        {
+            var release = await Updates.UpdateService.CheckAsync(updateCancellation.Token);
+            if (release != null && !updateCancellation.IsCancellationRequested) controller?.ShowUpdate(release);
+        }
+        catch (Exception) { /* Startup stays quiet when offline or already current. */ }
+    }
+
     protected override void OnExit(ExitEventArgs e)
     {
+        updateCancellation.Cancel();
         showWait?.Unregister(null); showPet?.Dispose();
         controller?.Dispose();
         if (instance != null) { instance.ReleaseMutex(); instance.Dispose(); }
