@@ -23,16 +23,16 @@ jobs:
         shell: pwsh
         run: |
           dotnet build Momonga.Desktop.csproj -c Release
-          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          if ($LASTEXITCODE) { if (Test-Path self-test-error.txt) { Get-Content self-test-error.txt }; exit $LASTEXITCODE }
           dotnet bin/Release/net8.0-windows/Momonga.Desktop.dll --self-test
-          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          if ($LASTEXITCODE) { if (Test-Path self-test-error.txt) { Get-Content self-test-error.txt }; exit $LASTEXITCODE }
           dotnet bin/Release/net8.0-windows/Momonga.Desktop.dll --ui-check
-          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          if ($LASTEXITCODE) { if (Test-Path self-test-error.txt) { Get-Content self-test-error.txt }; exit $LASTEXITCODE }
       - name: Publish portable Windows app
         shell: pwsh
         run: |
           dotnet publish Momonga.Desktop.csproj -c Release -r win-x64 --self-contained true -o release/Chiikawa-Companion-Windows-x64 -p:PublishTrimmed=false
-          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          if ($LASTEXITCODE) { if (Test-Path self-test-error.txt) { Get-Content self-test-error.txt }; exit $LASTEXITCODE }
           Copy-Item RELEASE-NOTES.md release/Chiikawa-Companion-Windows-x64/README.md
           Compress-Archive -Path release/Chiikawa-Companion-Windows-x64 -DestinationPath release/Chiikawa-Companion-Windows-x64.zip
       - uses: actions/upload-artifact@v4
