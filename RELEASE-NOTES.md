@@ -2,7 +2,7 @@
 
 데카츠요 대사를 추가한 정식 패치 릴리즈입니다. .NET 런타임이 포함되어 있어 별도 설치 없이 실행할 수 있습니다.
 
-**v0.3.2 배포 상태:** 새 Windows 파일을 제공합니다. macOS에도 대사와 업데이트 코드는 반영했지만 GitHub에서 이 계정의 Actions 실행을 차단하여 새 Mac 빌드·네이티브 검증을 진행하지 못했습니다. Mac 사용자는 검증된 [v0.3.0](https://github.com/scenesua/chiikawa-companion/releases/tag/v0.3.0)을 사용해 주세요. 계정 제한이 해제되면 macOS 파일을 함께 빌드할 수 있습니다.
+**v0.3.2 배포 상태:** Windows x64와 macOS Apple Silicon·Intel 파일을 제공합니다. macOS 파일은 GitHub Actions 제한으로 Windows에서 교차 빌드하고 `rcodesign`으로 앱과 내부 실행 파일에 임시 서명을 적용했습니다. Windows에서 서명 데이터·패키지 구조를 검사했지만 실제 macOS 실행 검사는 하지 않았으며 Developer ID 서명·공증은 없습니다. 실제 Mac에서 실행 검사한 버전이 필요하면 [v0.3.0](https://github.com/scenesua/chiikawa-companion/releases/tag/v0.3.0)을 사용해 주세요.
 
 ## 다운로드와 실행
 
@@ -11,7 +11,7 @@
 - Intel Mac: `macOS-Intel.zip`을 선택하세요.
 - 기존 실행 중인 버전을 더보기 또는 트레이 메뉴에서 종료한 후 새 버전을 실행하세요. 저장 데이터는 유지됩니다.
 
-macOS 파일은 개발용 임시 서명이며 Apple Developer ID 서명·공증은 없습니다. macOS에서 실행을 차단하면 시스템 설정 → 개인정보 보호 및 보안에서 이 앱의 실행을 허용하세요. 앱을 실행하지 않으면 이 항목이 나타나지 않을 수 있습니다.
+macOS 파일은 개발용 임시 서명이며 Apple Developer ID 서명·공증은 없습니다. macOS에서 실행을 차단하면 시스템 설정 → 개인정보 보호 및 보안에서 이 앱의 실행을 허용하세요. 앱을 실행하지 않으면 이 항목이 나타나지 않을 수 있습니다. 이번 v0.3.2의 macOS 실행 여부는 미검증입니다.
 
 ## 반영 사항
 

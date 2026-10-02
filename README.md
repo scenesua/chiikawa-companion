@@ -6,6 +6,8 @@ macOS 12 이상은 Avalonia 기반 별도 화면을 제공합니다. 욕구·성
 
 실행할 때마다 새 버전을 확인하고, 업데이트가 있을 때만 캐릭터 테마 HUD를 띄웁니다. 다운로드 진행률·취소와 SHA-256 검증을 제공하며 Windows는 저장 후 교체·재실행, Mac은 새 앱 폴더를 열어 수동 교체합니다. 최신 버전이거나 오프라인이면 안내를 띄우지 않습니다.
 
+v0.3.2 macOS 파일은 Windows에서 교차 빌드하고 `rcodesign`으로 임시 서명했습니다. 서명 데이터와 ZIP 구조는 검사했지만 실제 Mac 실행 검사·Developer ID 서명·공증은 하지 않았습니다. GitHub Actions가 복구되면 기존 워크플로로 Mac 네이티브 검증을 다시 수행할 수 있습니다. 교차 빌드 ZIP은 `tools/package-mac.py Apple-Silicon|Intel /path/to/rcodesign`으로 실행 권한을 보존하여 만듭니다.
+
 ## 실행
 
 최신 배포 폴더 dist-latest의 Momonga.Desktop.exe를 실행합니다. 기존 버전이 실행 중이면 더보기 또는 트레이의 종료로 끈 뒤 새 버전을 실행합니다. .NET 8 Windows Desktop Runtime이 필요합니다.
