@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
-using System.Windows;
 using Momonga.Persistence;
 
 namespace Momonga.Content;
@@ -15,7 +14,7 @@ public sealed class DialogueService
     public DialogueService(SaveData data, string dialogueSetId = "momonga")
     {
         this.data = data;
-        using var stream = Application.GetResourceStream(new Uri($"pack://application:,,,/Content/{dialogueSetId}-dialogue.json")).Stream;
+        using var stream = ContentResource.Open($"Content/{dialogueSetId}-dialogue.json");
         lines = JsonSerializer.Deserialize<Dictionary<string, string[]>>(stream) ?? throw new InvalidOperationException("Missing dialogue");
     }
     public string Pick(string tag)

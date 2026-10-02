@@ -1,6 +1,5 @@
 using System;
 using System.Text.Json;
-using System.Windows;
 
 namespace Momonga.Character;
 
@@ -55,7 +54,7 @@ public sealed record CharacterDefinition
     public static CharacterDefinition Load(string id = "momonga")
     {
         if (!System.Linq.Enumerable.Contains(Ids, id)) throw new ArgumentException("Unknown character", nameof(id));
-        using var data = Application.GetResourceStream(new Uri($"pack://application:,,,/Content/{id}.json")).Stream;
+        using var data = Content.ContentResource.Open($"Content/{id}.json");
         var definition = JsonSerializer.Deserialize<CharacterDefinition>(data)
             ?? throw new InvalidOperationException("Missing character definition");
         definition.Validate();

@@ -1,7 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+#if CROSS_PLATFORM
+using Avalonia;
+#else
 using System.Windows;
+#endif
 using Momonga.AI;
 using Momonga.Animation;
 using Momonga.Character;
@@ -51,7 +55,7 @@ public sealed class LifeSimulation
     private double resumeAt;
     public HabitatItem? InteractionItem => targetItem;
     public double InteractionProgress => completed ? 1 : Math.Clamp(atTargetSeconds / (Brain.Current.Name == "Drink" ? 4 : 6), 0, 1);
-    public bool InteractionArrived => targetItem != null && Destination.HasValue && (Destination.Value - Habitat.PetCenter).Length <= ReachRadius;
+    public bool InteractionArrived => targetItem != null && Destination.HasValue && ((Vector)(Destination.Value - Habitat.PetCenter)).Length <= ReachRadius;
     public bool SeatOnBed()
     {
         resumeItem = null;
@@ -152,7 +156,7 @@ public sealed class LifeSimulation
         if (Playing && (Brain.Current.Name != "Play" || Data.Pet.Fun >= 90 || Data.Pet.Hunger > 90 || Data.Pet.Energy < 10)) StopPlay();
         if (!Playing) Brain.Update(Context, seconds);
         if (Brain.IsPaused(Data.SimulationSeconds)) return;
-        var arrived = !Destination.HasValue || (Destination.Value - Habitat.PetCenter).Length <= ReachRadius;
+        var arrived = !Destination.HasValue || ((Vector)(Destination.Value - Habitat.PetCenter)).Length <= ReachRadius;
         if (arrived) atTargetSeconds += seconds;
         var pet = Data.Pet;
         switch (Brain.Current.Name)
@@ -207,7 +211,7 @@ public sealed class LifeSimulation
         if (targetItem != null) Destination = FurnitureTarget(targetItem);
         else if ((behavior.Name.StartsWith("Ask") || behavior.Name == "Play") && Context.CanInterrupt)
         {
-            var offset = userPoint - Habitat.PetCenter;
+            var offset = (Vector)(userPoint - Habitat.PetCenter);
             if (offset.Length > 220) offset *= 220 / offset.Length;
             Destination = Habitat.PetCenter + offset + new Vector(-45, 35);
         }

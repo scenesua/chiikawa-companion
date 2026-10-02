@@ -1,5 +1,9 @@
 using System;
+#if CROSS_PLATFORM
+using Avalonia;
+#else
 using System.Windows;
+#endif
 using Momonga.Character;
 
 namespace Momonga.Simulation;
@@ -17,7 +21,7 @@ public static class MotionChecks
         {
             var next = motion.Update(position, bounds, 0.05);
             Require(bounds.Contains(next), "Movement escaped work area");
-            Require((next - position).Length <= 1.600001, "Movement exceeded speed");
+            Require(((Vector)(next - position)).Length <= 1.600001, "Movement exceeded speed");
             wandered |= next != position;
             position = next;
         }

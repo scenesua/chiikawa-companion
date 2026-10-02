@@ -15,10 +15,13 @@ public static class WindowPolicy
         for (var i = 0; i < 200 && item != IntPtr.Zero; i++) { item = GetWindow(item, 3); if (item == actor) return true; }
         return false;
     }
-    public static void Top(Window window) { var h = new WindowInteropHelper(window).Handle; if (h != IntPtr.Zero) SetWindowPos(h, new IntPtr(-1), 0,0,0,0,0x13); }
+    public static bool IsTopmost(Window window) => (GetStyle(new WindowInteropHelper(window).Handle,-20) & 0x8) != 0;
+    public static void Top(Window window) { window.Topmost=true; var h = new WindowInteropHelper(window).Handle; if (h != IntPtr.Zero) SetWindowPos(h, new IntPtr(-1), 0,0,0,0,0x13); }
     public static void Behind(Window furniture, Window pet)
     {
         var item = new WindowInteropHelper(furniture).Handle; var actor = new WindowInteropHelper(pet).Handle;
+        if (!IsTopmost(pet)) Top(pet);
+        if (!IsTopmost(furniture)) Top(furniture);
         if (item != IntPtr.Zero && actor != IntPtr.Zero) SetWindowPos(item, actor, 0, 0, 0, 0, 0x13);
     }
     [DllImport("user32.dll", EntryPoint = "GetWindowLongW")] private static extern int GetStyle(IntPtr window, int index);

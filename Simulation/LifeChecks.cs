@@ -1,7 +1,11 @@
 using System;
 using System.IO;
 using System.Linq;
+#if CROSS_PLATFORM
+using Avalonia;
+#else
 using System.Windows;
+#endif
 using Momonga.AI;
 using Momonga.Character;
 using Momonga.Content;
@@ -9,7 +13,9 @@ using Momonga.Economy;
 using Momonga.Input;
 using Momonga.Inventory;
 using Momonga.Persistence;
+#if !CROSS_PLATFORM
 using Momonga.UI;
+#endif
 
 namespace Momonga.Simulation;
 
@@ -22,6 +28,7 @@ public static class LifeChecks
         mealInterval.Update(3*3600); Require(mealInterval.Hunger<45,"Meal needed before three hours");
         mealInterval.Update(3600); Require(mealInterval.Hunger>=45,"Meal was not needed within four hours");
         Require((character with { TalkFrequency = 1 }).SpeechInterval < (character with { TalkFrequency = 0 }).SpeechInterval, "Talk personality did not change frequency");
+#if !CROSS_PLATFORM
         var speechAnchor = new PetWindow { Left = 400, Top = 400 };
         var speech = new SpeechBubbleWindow();
         try
@@ -35,6 +42,7 @@ public static class LifeChecks
         }
         finally { speech.Close(); speechAnchor.Close(); }
         using (var inputHooks = new Momonga.Platform.AnonymousActivityMonitor()) inputHooks.Drain();
+#endif
         var data = new SaveData(); data.Zone.X = data.Zone.Y = 0;
         var life = new LifeSimulation(data, character, catalog);
         foreach (var id in new[] { "food-bowl", "water-bowl", "cushion" }) Require(life.Shop.Place(id) != null, "Starter furniture missing");
@@ -49,6 +57,7 @@ public static class LifeChecks
         Require(life.Shop.FillFood(food, "meal") && life.Shop.Quantity("meal") == 1, "Food fill did not consume inventory");
         Require(food.FoodQuantity == 1 && !life.Shop.FillFood(food, "meal") && life.Shop.Quantity("meal") == 1, "One meal failed to fill bowl or full bowl consumed inventory");
         Require(life.Habitat.SizeOf(food) == life.Habitat.SizeOf(bedTarget), "Furniture sizes are not linked");
+#if !CROSS_PLATFORM
         Require(!data.Settings.DirectTouch && !speechAnchor.DirectTouch(), "Direct touch should be opt-in");
         for (var side = 0; side < 2; side++)
         {
@@ -59,6 +68,7 @@ public static class LifeChecks
                 Require(mapped > previous, "Cheek deformation folded over itself"); previous = mapped;
             }
         }
+#endif
         data.Pet.Hunger = 90; life.Habitat.PetCenter = life.Habitat.Center(food); life.RefreshContext();
         Require(life.Brain.Force("Eat", life.Context), "Eating unavailable with food");
         for (var i = 0; i < 7; i++) life.Update(1, new Point(600, 300), false);
@@ -197,11 +207,13 @@ public static class LifeChecks
         Require(restored.Items.Count == 3 && restored.Settings.PetScale == 1.5 && restored.Inventory["nuts"] == 1 && File.Exists(path + ".bak"), "Atomic save round trip failed");
         File.WriteAllText(path, "{ corrupt"); var recovered = save.Load(catalog);
         Require(recovered.ActivityPoints == 15000 && Directory.GetFiles(Path.GetDirectoryName(path)!, "*.corrupt-*.json").Length == 1, "Corrupt save recovery lost backup");
+#if !CROSS_PLATFORM
         var themeReference = Theme.Brush("Accent");
         Theme.Apply(character.Theme with { Accent = "#226E78" });
         Require(((System.Windows.Media.SolidColorBrush)Theme.Brush("Accent")).Color.ToString() == "#FF226E78", "Character theme did not apply");
         Require(ReferenceEquals(themeReference, Theme.Brush("Accent")), "Existing windows lost live theme reference");
         Theme.Apply(character.Theme);
+#endif
     }
     private static void Require(bool condition, string message) { if (!condition) throw new InvalidOperationException(message); }
 }

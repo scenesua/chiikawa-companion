@@ -11,6 +11,12 @@ public enum PetPose { Happy, Eat, Sleep, Annoyed, Sulk, Startled, Dragged, Play 
 
 public sealed class PetAnimator
 {
+    private static readonly System.Collections.Generic.Dictionary<string,int[][][]> exclusions = LoadExclusions();
+    private static System.Collections.Generic.Dictionary<string,int[][][]> LoadExclusions()
+    {
+        using var stream = Application.GetResourceStream(new Uri("pack://application:,,,/Assets/sprite-exclusions.json")).Stream;
+        return JsonSerializer.Deserialize<System.Collections.Generic.Dictionary<string,int[][][]>>(stream)!;
+    }
     private readonly BitmapSource[] frames;
     private readonly BitmapSource[] idleFrames;
     private int facing = 2;
@@ -52,9 +58,17 @@ public sealed class PetAnimator
             if (rect.Length != 4 || rect[0] < 0 || rect[1] < 0 || rect[2] <= 0 || rect[3] <= 0 ||
                 rect[0] + rect[2] > atlas.PixelWidth || rect[1] + rect[3] > atlas.PixelHeight)
                 throw new InvalidOperationException("Sprite rectangle is outside the atlas");
-            var frame = new CroppedBitmap(atlas, new Int32Rect(rect[0], rect[1], rect[2], rect[3]));
-            frame.Freeze();
-            result[i] = frame;
+            BitmapSource frame = new CroppedBitmap(atlas, new Int32Rect(rect[0], rect[1], rect[2], rect[3]));
+            if (exclusions.TryGetValue(frameName, out var masks) && masks[i].Length > 0)
+            {
+                var clip = new GeometryGroup { FillRule = FillRule.EvenOdd };
+                clip.Children.Add(new RectangleGeometry(new Rect(0,0,rect[2],rect[3])));
+                foreach (var cut in masks[i]) clip.Children.Add(new RectangleGeometry(new Rect(cut[0],cut[1],cut[2],cut[3])));
+                var visual = new DrawingVisual(); RenderOptions.SetEdgeMode(visual,EdgeMode.Aliased);
+                using (var dc = visual.RenderOpen()) { dc.PushClip(clip); dc.DrawImage(frame,new Rect(0,0,rect[2],rect[3])); }
+                var cleaned = new RenderTargetBitmap(rect[2],rect[3],96,96,PixelFormats.Pbgra32); cleaned.Render(visual); frame=cleaned;
+            }
+            frame.Freeze(); result[i] = frame;
         }
         return result;
     }

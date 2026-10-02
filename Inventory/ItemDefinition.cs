@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
-using System.Windows;
 
 namespace Momonga.Inventory;
 
@@ -17,7 +16,7 @@ public static class ItemCatalog
 {
     public static IReadOnlyDictionary<string, ItemDefinition> Load()
     {
-        using var stream = Application.GetResourceStream(new Uri("pack://application:,,,/Content/items.json")).Stream;
+        using var stream = Content.ContentResource.Open("Content/items.json");
         var items = JsonSerializer.Deserialize<ItemDefinition[]>(stream) ?? throw new InvalidOperationException("Empty item catalog");
         if (items.Any(i => string.IsNullOrWhiteSpace(i.Id) || i.Price < 0 || i.AnimationFrame < 0 || i.AnimationFrame > 22 || i.AnimationFrame % 2 != 0 ||
             new[] { i.Hunger, i.Mood, i.Fun, i.Affection, i.Thirst }.Any(v => !double.IsFinite(v) || v < 0 || v > 100) ||

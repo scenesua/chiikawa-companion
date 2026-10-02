@@ -1,6 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
+#if CROSS_PLATFORM
+using Avalonia;
+#else
 using System.Windows;
+#endif
 using Momonga.Character;
 using Momonga.Inventory;
 using Momonga.Persistence;
@@ -26,6 +30,6 @@ public sealed class HabitatManager(SaveData data, IReadOnlyDictionary<string, It
         "Water" => i.ItemId == "water-bowl" && i.Water > 0,
         "Sign" => catalog[i.ItemId].Category == "Bed" && i.Active,
         _ => catalog[i.ItemId].Category == type
-    }).MinBy(i => (Center(i) - PetCenter).Length -
+    }).MinBy(i => ((Vector)(Center(i) - PetCenter)).Length -
         (character.PreferredBeds.Contains(i.ItemId) || character.FavoriteToys.Contains(i.ItemId) ? 80 : 0));
 }

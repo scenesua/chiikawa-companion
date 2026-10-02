@@ -7,6 +7,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="Mac/**" />
+    <EmbeddedResource Include="Content/*.json" LogicalName="Content/%(Filename)%(Extension)" />
     <Resource Include="Assets\*.png" />
     <Resource Include="Assets\references\*.png" />
     <Resource Include="Assets\*.json" Exclude="Assets\character-generation.json;Assets\meal-generation.json;Assets\additions-generation.json;Assets\drinking-generation.json" />

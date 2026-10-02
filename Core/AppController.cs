@@ -293,6 +293,7 @@ public sealed class AppController : IDisposable
         if (now >= nextSense)
         {
             nextSense = now + 1; var wasActive = active; active = DesktopAwareness.IsActive();
+            if (!hidden) WindowPolicy.Top(pet);
             fullscreen = life.Data.Settings.FullscreenCourtesy && DesktopAwareness.IsFullscreen();
             if (active && !wasActive && life.Data.SimulationSeconds >= life.Brain.Cooldowns.GetValueOrDefault("Greeting", 300))
             { Speak("ReturnGreeting", true); life.Brain.Cooldowns["Greeting"] = life.Data.SimulationSeconds + 300; }
@@ -363,6 +364,9 @@ public sealed class AppController : IDisposable
             if (item.IsComposite) WindowPolicy.Top(item); else WindowPolicy.Behind(item, pet);
         }
         pet.ShowComposite(composite);
+        if (bubble.IsVisible) WindowPolicy.Top(bubble);
+        if (radial?.IsVisible == true) WindowPolicy.Top(radial);
+        foreach (var panel in panels.Values) if (panel.IsVisible) WindowPolicy.Top(panel);
     }
     private void DebugCommand(string command)
     {
@@ -453,6 +457,20 @@ public sealed class AppController : IDisposable
         var drinkingImage=new RenderTargetBitmap(1200,900,96,96,PixelFormats.Pbgra32); drinkingImage.Render(drinks);
         var drinkingEncoder=new PngBitmapEncoder(); drinkingEncoder.Frames.Add(BitmapFrame.Create(drinkingImage));
         using(var stream=File.Create(Path.Combine(directory,"drinking-poses.png"))) drinkingEncoder.Save(stream);
+        foreach(var id in CharacterDefinition.Ids.Where(id=>id!="momonga"))
+        {
+            CharacterSprites.Select(id);var sheet=new DrawingVisual();
+            using(var dc=sheet.RenderOpen())
+            {
+                dc.DrawRectangle(System.Windows.Media.Brushes.White,null,new Rect(0,0,1280,1600));
+                for(var frame=0;frame<80;frame++) dc.DrawImage(CharacterSprites.Frame(frame),new Rect(frame%8*160,frame/8*160,160,160));
+            }
+            var bitmap=new RenderTargetBitmap(1280,1600,96,96,PixelFormats.Pbgra32);bitmap.Render(sheet);
+            var encoder=new PngBitmapEncoder();encoder.Frames.Add(BitmapFrame.Create(bitmap));
+            using var file=File.Create(Path.Combine(directory,id+"-all-frames.png"));encoder.Save(file);
+        }
+        pet.Topmost=false;WindowPolicy.Top(pet);
+        if (!pet.Topmost || !WindowPolicy.IsTopmost(pet)) throw new InvalidOperationException("Pet did not recover native topmost state");
         CharacterSprites.Select(life.Character.AssetSet);
         var dragged = itemWindows.Values.First(); var originalPosition = new Point(dragged.Item.X, dragged.Item.Y);
         dragged.MoveItem(new Vector(21.5, 11.25)); dragged.Refresh();

@@ -1,0 +1,114 @@
+name: Build desktop release
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: New release tag
+        required: true
+        default: v0.3.0
+permissions:
+  contents: read
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - name: Build and check WPF
+        shell: pwsh
+        run: |
+          dotnet build Momonga.Desktop.csproj -c Release
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          dotnet bin/Release/net8.0-windows/Momonga.Desktop.dll --self-test
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          dotnet bin/Release/net8.0-windows/Momonga.Desktop.dll --ui-check
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: Publish portable Windows app
+        shell: pwsh
+        run: |
+          dotnet publish Momonga.Desktop.csproj -c Release -r win-x64 --self-contained true -o release/Chiikawa-Companion-Windows-x64 -p:PublishTrimmed=false
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          Copy-Item RELEASE-NOTES.md release/Chiikawa-Companion-Windows-x64/README.md
+          Compress-Archive -Path release/Chiikawa-Companion-Windows-x64 -DestinationPath release/Chiikawa-Companion-Windows-x64.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Windows-x64
+          path: release/*.zip
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Windows-UI-check
+          path: obj/ui-check/*.png
+  macos:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: macos-15
+            rid: osx-arm64
+            name: Apple-Silicon
+          - runner: macos-15-intel
+            rid: osx-x64
+            name: Intel
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - name: Build and run native macOS checks
+        run: |
+          dotnet build Mac/Chiikawa.Mac.csproj -c Release
+          dotnet Mac/bin/Release/net8.0/Chiikawa.Companion.dll --self-test
+          dotnet Mac/bin/Release/net8.0/Chiikawa.Companion.dll --ui-check
+      - name: Create self-contained app bundle
+        env:
+          RID: ${{ matrix.rid }}
+          ARCH: ${{ matrix.name }}
+        run: |
+          bundle="release/Chiikawa Companion.app"
+          mkdir -p "$bundle/Contents/MacOS" "$bundle/Contents/Resources"
+          dotnet publish Mac/Chiikawa.Mac.csproj -c Release -r "$RID" --self-contained true -p:PublishTrimmed=false -o "$bundle/Contents/MacOS"
+          cp Mac/Info.plist "$bundle/Contents/Info.plist"
+          cp RELEASE-NOTES.md "$bundle/Contents/Resources/README.md"
+          chmod +x "$bundle/Contents/MacOS/Chiikawa.Companion"
+          codesign --force --deep --sign - "$bundle"
+          codesign --verify --deep --strict "$bundle"
+          "$bundle/Contents/MacOS/Chiikawa.Companion" --self-test
+          "$bundle/Contents/MacOS/Chiikawa.Companion" --ui-check
+          ditto -c -k --sequesterRsrc --keepParent "$bundle" "release/Chiikawa-Companion-macOS-$ARCH.zip"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macOS-${{ matrix.name }}
+          path: release/*.zip
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: macOS-${{ matrix.name }}-UI-check
+          path: obj/mac-ui-check/*.png
+  release:
+    needs: [windows, macos]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: '*'
+          path: artifacts
+      - name: Publish prerelease after all checks pass
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ inputs.version }}
+        run: gh release create "$VERSION" artifacts/Windows-x64/*.zip artifacts/macOS-Apple-Silicon/*.zip artifacts/macOS-Intel/*.zip --target "$GITHUB_SHA" --prerelease --title "Chiikawa Companion $VERSION · Windows + macOS Preview" --notes-file RELEASE-NOTES.md

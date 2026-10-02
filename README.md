@@ -2,11 +2,17 @@
 
 Windows 10/11 · C# · .NET 8 · WPF 프로토타입.
 
+macOS 12 이상은 Avalonia 기반 별도 화면을 제공합니다. 욕구·성격·경제·저장 로직과 이미지 리소스는 공유합니다. [릴리즈](https://github.com/scenesua/chiikawa-companion/releases)에서 Windows x64, Apple Silicon, Intel Mac용 ZIP을 받을 수 있습니다. macOS는 미리보기이며 차이점과 실행 방법은 [RELEASE-NOTES.md](RELEASE-NOTES.md)에 있습니다.
+
 ## 실행
 
 최신 배포 폴더 dist-latest의 Momonga.Desktop.exe를 실행합니다. 기존 버전이 실행 중이면 더보기 또는 트레이의 종료로 끈 뒤 새 버전을 실행합니다. .NET 8 Windows Desktop Runtime이 필요합니다.
 SDK 빌드: dotnet build. 검증: Momonga.Desktop.exe --self-test 및 --ui-check.
 UI 검증은 obj/ui-check에 실제 WPF 화면을 저장하고 상호작용 통합 검사를 실행합니다.
+
+macOS 빌드: `dotnet build Mac/Chiikawa.Mac.csproj -c Release`. 검증: `dotnet Mac/bin/Release/net8.0/Chiikawa.Companion.dll --self-test` 및 `--ui-check`. 화면 검증 결과는 `obj/mac-ui-check`에 저장합니다. GitHub Actions의 `Build desktop release`는 두 Mac 아키텍처에서 네이티브 실행과 앱 번들 검증을 끝낸 후 릴리즈합니다.
+
+스프라이트 검사 도구: `tools/audit-sprites.py` (Pillow·NumPy·SciPy 필요). 원본 PNG는 유지하고 자르기 좌표와 `Assets/sprite-exclusions.json`의 제외 영역을 런타임에 적용합니다.
 
 ## 조작
 

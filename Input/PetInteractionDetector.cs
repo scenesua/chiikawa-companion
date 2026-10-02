@@ -1,4 +1,8 @@
+#if CROSS_PLATFORM
+using Avalonia;
+#else
 using System.Windows;
+#endif
 
 namespace Momonga.Input;
 

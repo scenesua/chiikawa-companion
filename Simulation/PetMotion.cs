@@ -1,5 +1,9 @@
 using System;
+#if CROSS_PLATFORM
+using Avalonia;
+#else
 using System.Windows;
+#endif
 using Momonga.Character;
 
 namespace Momonga.Simulation;
@@ -67,7 +71,7 @@ public sealed class PetMotion
         }
 
         var destination = Clamp(target.Value, bounds);
-        var direction = destination - position;
+        var direction = (Vector)(destination - position);
         var distance = direction.Length;
         var step = 32 * seconds;
         if (distance <= step)

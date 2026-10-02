@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <AssemblyName>Chiikawa.Companion</AssemblyName>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <DefineConstants>$(DefineConstants);CROSS_PLATFORM</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Avalonia.Desktop" Version="11.3.22" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.22" />
+    <Compile Include="../AI/*.cs;../Character/*.cs;../Content/*.cs;../Economy/*.cs;../Habitat/*.cs;../Inventory/*.cs;../Persistence/*.cs;../Simulation/*.cs;../Input/*.cs" />
+    <EmbeddedResource Include="../Content/*.json" LogicalName="Content/%(Filename)%(Extension)" />
+    <AvaloniaResource Include="../Assets/*.png;../Assets/*.json;../Assets/references/*.png" Link="Assets/%(RecursiveDir)%(Filename)%(Extension)" />
+  </ItemGroup>
+</Project>

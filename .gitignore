@@ -4,6 +4,7 @@ obj/
 self-test-error.txt
 dist/
 dist-latest/
+release/
 *.user
 *.suo
 __pycache__/
