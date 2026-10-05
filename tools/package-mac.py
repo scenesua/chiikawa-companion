@@ -11,6 +11,7 @@ import subprocess
 import sys
 import zipfile
 from pathlib import Path
+from mac_bundle import verify_resources
 
 root = Path(__file__).resolve().parents[1]
 arch, signer = sys.argv[1:3]
@@ -28,6 +29,7 @@ assert struct.unpack_from("<I", header, 4)[0] == (0x100000C if arch == "Apple-Si
 resources = contents / "_CodeSignature" / "CodeResources"
 assert resources.is_file()
 plistlib.loads(resources.read_bytes())
+verify_resources(bundle)
 magics = (b"\xcf\xfa\xed\xfe", b"\xce\xfa\xed\xfe", b"\xca\xfe\xba\xbe", b"\xca\xfe\xba\xbf")
 native = []
 for path in sorted(contents.rglob("*")):

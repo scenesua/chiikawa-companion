@@ -6,7 +6,7 @@ macOS 12 이상은 Avalonia 기반 별도 화면을 제공합니다. 욕구·성
 
 실행할 때마다 새 버전을 확인하고, 업데이트가 있을 때만 캐릭터 테마 HUD를 띄웁니다. 다운로드 진행률·취소와 SHA-256 검증을 제공하며 Windows는 저장 후 교체·재실행, Mac은 새 앱 폴더를 열어 수동 교체합니다. 최신 버전이거나 오프라인이면 안내를 띄우지 않습니다.
 
-v0.4.0은 Windows에서 빌드·자체 검사·UI 검사한 배포본입니다. Mac 파일은 Windows 교차 빌드와 임시 서명·패키지 검사만 수행했으며 실제 macOS 실행 검사·Developer ID 서명·공증은 없습니다. GitHub Actions는 빌드 실행 결과를 확인할 수 없어 이번 배포에 사용하지 못했습니다. 교차 빌드 ZIP은 `tools/package-mac.py Apple-Silicon|Intel /path/to/rcodesign`으로 실행 권한을 보존하여 만듭니다.
+v0.4.1은 Mac 번들의 서명 누락을 수정했습니다. DLL·설정·런타임은 `Contents/Resources/runtime`에 두고 앱 실행파일이 해당 경로를 참조합니다. Mac 파일은 Windows 교차 빌드와 임시 서명·전체 파일 봉인 검사만 수행했으며 실제 macOS 실행 검사·Developer ID 서명·공증은 없습니다. 공증 부재에 따른 다운로드 앱 차단은 별도 문제입니다. 교차 빌드 ZIP은 `tools/package-mac.py Apple-Silicon|Intel /path/to/rcodesign`으로 실행 권한을 보존하여 만듭니다.
 
 ## 실행
 
