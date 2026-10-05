@@ -41,6 +41,7 @@ public sealed class PetAnimator
             var mirrored = new TransformedBitmap(frames[index], new ScaleTransform(-1, 1));
             mirrored.Freeze(); frames[index] = mirrored;
         }
+        if(assetSet=="momonga")for(var i=0;i<frames.Length;i++)UI.CharacterLayers.Register(frames[i],assetSet,"movement",i,i<24?i%8:2);
         idleFrames = assetSet == "momonga" ? LoadFrames(assetSet + "-idle", assetSet + "-idle-frames", 12) : CharacterSprites.Frames(assetSet, 32, 12);
     }
 
@@ -73,7 +74,12 @@ public sealed class PetAnimator
         return result;
     }
 
-    public void React(PetPose action, double now) { pose = action; poseUntil = now + 3; }
+    public void React(PetPose action, double now, double seconds = 3) { pose = action; poseUntil = now + seconds; }
+    public BitmapSource FaceFront(PetPose expression, double now)
+    {
+        Frame(new Vector(),new Point(64,218),false,now);
+        return facing==2 ? frames[24+(int)expression] : frames[facing];
+    }
 
     public BitmapSource Frame(Vector movement, Point? cursor, bool dragging, double now,
         IdleActivity activity = IdleActivity.Calm, PetPose? lifePose = null)

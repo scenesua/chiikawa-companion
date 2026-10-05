@@ -5,8 +5,8 @@
   <key>CFBundleIdentifier</key><string>io.github.scenesua.chiikawa-companion</string>
   <key>CFBundleName</key><string>Chiikawa</string>
   <key>CFBundleDisplayName</key><string>Chiikawa Companion</string>
-  <key>CFBundleVersion</key><string>0.3.2</string>
-  <key>CFBundleShortVersionString</key><string>0.3.2</string>
+  <key>CFBundleVersion</key><string>0.4.0</string>
+  <key>CFBundleShortVersionString</key><string>0.4.0</string>
   <key>CFBundlePackageType</key><string>APPL</string>
   <key>LSMinimumSystemVersion</key><string>12.0</string>
   <key>NSHighResolutionCapable</key><true/>

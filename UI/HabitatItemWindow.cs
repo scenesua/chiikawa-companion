@@ -14,7 +14,7 @@ public sealed class HabitatItemWindow : Window
 {
     public HabitatItem Item { get; }
     public Func<string,string>? FoodName { get; set; }
-    private readonly Image symbol;
+    private readonly LayeredSprite symbol;
     private readonly TextBlock label;
     private readonly Border shape;
     private readonly Canvas canvas = new();
@@ -48,7 +48,8 @@ public sealed class HabitatItemWindow : Window
         Item = item; bed = definition.Category == "Bed"; this.command = command; Title = definition.Name; Width = Height = 80 * item.Scale;
         WindowStyle = WindowStyle.None; AllowsTransparency = true; Background = Brushes.Transparent;
         ShowInTaskbar = false; ShowActivated = false; Topmost = true; ResizeMode = ResizeMode.NoResize;
-        symbol = item.ItemId == "water-bowl" ? Icons.WaterBowl() : Icons.Image(item.ItemId switch { "food-bowl" => 1, "quiet-sign" => 5, "ball" => 2, "doll" => 0, _ => 16 }, 64);
+        var icon = item.ItemId == "water-bowl" ? Icons.WaterBowl() : Icons.Image(item.ItemId switch { "food-bowl" => 1, "quiet-sign" => 5, "ball" => 2, "doll" => 0, _ => 16 }, 64);
+        symbol = new LayeredSprite { Source=icon.Source,Width=icon.Width,Height=icon.Height,IsCharacter=false };
         ordinarySource = symbol.Source;
         canvas.Children.Add(foodContents);
         canvas.Children.Add(symbol);
@@ -112,7 +113,7 @@ public sealed class HabitatItemWindow : Window
         Item.X += delta.X; Item.Y += delta.Y;
         Left = Item.X + SceneOffset.X; Top = Item.Y + SceneOffset.Y;
     }
-    public void Refresh(bool protest = false, int? sceneFrame = null, double depletion = 0, double actorWidth = 128)
+    public void Refresh(bool protest = false, int? sceneFrame = null, double depletion = 0, double actorWidth = 128,double? motionTime=null)
     {
         composite = sceneFrame.HasValue;
         Width = baseSize.Width * 2; Height = baseSize.Width * 3;
@@ -140,6 +141,10 @@ public sealed class HabitatItemWindow : Window
             bedFront.Clip=new RectangleGeometry(new Rect(0,targetHeight*.68,targetWidth,targetHeight*.32));
             Canvas.SetLeft(bedFront,left); Canvas.SetTop(bedFront,top);
         }
+        symbol.IsCharacter=sceneFrame.HasValue;
+        symbol.Chewing=sceneFrame is 4 or 5;
+        symbol.Sipping=sceneFrame is 6 or 7;
+        symbol.MotionTime=motionTime;
         if (sceneFrame.HasValue)
         {
             var play = sceneFrame.Value >= 8;
@@ -156,6 +161,7 @@ public sealed class HabitatItemWindow : Window
             var actorTop = Height - 7 - rimHeight - baseline * symbol.Height;
             Canvas.SetLeft(symbol, actorLeft); Canvas.SetTop(symbol, actorTop);
             symbol.Source = source;
+            if(symbol.Chewing||symbol.Sipping)symbol.InvalidateVisual();
             petArea = new Rect(actorLeft, actorTop, symbol.Width, baseline * symbol.Height);
             symbol.Visibility = Visibility.Visible;
             if (play)

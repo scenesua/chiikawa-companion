@@ -36,6 +36,8 @@ public sealed class AppController : IDisposable
     private readonly Dictionary<string, HabitatItemWindow> itemWindows = new();
     private readonly Dictionary<string, Window> panels = new();
     private RadialMenuWindow? radial;
+    private BallWindow? ballWindow;
+    private PlaygroundWindow? playgroundWindow;
     private DebugWindow? debug;
     private double lastTick, nextSense, nextSave = 60, bubbleUntil, nextStartle, nextAutonomousSpeech;
     private bool active, fullscreen, hidden, finishing, bubbleAutonomous;
@@ -91,7 +93,7 @@ public sealed class AppController : IDisposable
     private Rect Bounds()
     {
         var area = MonitorService.At(pet, new Point(pet.Left + pet.Width / 2, pet.Top + pet.Height / 2)).Work;
-        if (life.Habitat.Quiet) area.Intersect(life.Habitat.Bounds);
+        if (life.Habitat.Quiet && !life.Ball.Active && !life.Playground.Active) area.Intersect(life.Habitat.Bounds);
         return new Rect(area.Left, area.Top, Math.Max(0, area.Width - pet.Width), Math.Max(0, area.Height - pet.Height));
     }
     private void Recall()
@@ -121,6 +123,8 @@ public sealed class AppController : IDisposable
     private void Hide()
     {
         tray.EnsureVisible();
+        if (life.Playing) life.StopPlay(); ballWindow?.Hide();
+        playgroundWindow?.Close(); playgroundWindow=null;
         hidden = true; pet.Hide(); bubble.Hide(); radial?.Close();
         foreach (var item in itemWindows.Values) item.Hide();
     }
@@ -233,6 +237,7 @@ public sealed class AppController : IDisposable
     }
     private void OpenPanel(string name, HabitatItem? targetBowl = null)
     {
+        if(life.Playground.Active) {life.StopPlay();SyncPlayground();}
         var key = name + targetBowl?.Id;
         if (panels.TryGetValue(key, out var existing)) { existing.Activate(); return; }
         Action back = targetBowl == null ? OpenRadial : () => OpenItemRadial(targetBowl);
@@ -261,6 +266,8 @@ public sealed class AppController : IDisposable
             case "Soothe": case "Praise": case "Refuse": Interact(command); break;
             case "Poke": pet.ArmPoke(); break;
             case "Play": life.StartPlay(); break;
+            case "BallPlay": life.StartBallPlay(); break;
+            case "BubblePlay": case "SnackPlay": pet.CancelArmed();life.StartPlayground(command=="BubblePlay"?PlaygroundMode.Bubbles:PlaygroundMode.Snacks);break;
             case "StopPlay": life.StopPlay(); break;
             case "Characters": OpenPanel("Characters"); break;
             case "Quit": Application.Current.Shutdown(); return;
@@ -325,15 +332,17 @@ public sealed class AppController : IDisposable
     private void Step(double seconds, Point? localCursor)
     {
         UpdatePosition(); life.NavigationBounds = Bounds(); life.ActorSize = new Size(pet.Width, pet.Height);
+        life.Ball.Bounds = MonitorService.At(pet, life.Habitat.PetCenter).Work;
+        life.Playground.Bounds=life.Ball.Bounds;
         life.ReachRadius = 18; life.Update(seconds, cursorWorld, fullscreen);
         var before = new Point(pet.Left, pet.Top);
-        if (!hidden && !pet.IsInteracting && radial?.IsVisible != true && !pet.IsReacting && !life.Brain.IsPaused(life.Data.SimulationSeconds))
+        if (!hidden && !pet.IsInteracting && radial?.IsVisible != true && !pet.IsReacting && (!life.Brain.IsPaused(life.Data.SimulationSeconds) || life.Ball.Active || life.Playground.Active))
         {
             Point next;
             if (life.Destination.HasValue)
             {
                 var target = PetMotion.Clamp(life.Destination.Value - new Vector(pet.Width / 2, pet.Height / 2), Bounds());
-                var offset = target - before; var speed = Math.Min(offset.Length, seconds * 42);
+                var offset = target - before; var speed = Math.Min(offset.Length, seconds * (life.Ball.Running || life.Playground.Mode==PlaygroundMode.Bubbles ? 210 : life.Playground.Mode==PlaygroundMode.Snacks ? 85 : 42));
                 next = offset.Length <= 0.01 ? before : before + offset * (speed / offset.Length);
             }
             else if (life.Brain.Current.Name is "Idle" or "Wander" or "LookAtCursor") next = motion.Update(before, Bounds(), seconds);
@@ -342,9 +351,13 @@ public sealed class AppController : IDisposable
         }
         var arrived = !life.Destination.HasValue || (life.Destination.Value - life.Habitat.PetCenter).Length <= life.ReachRadius;
         pet.Render(new Point(pet.Left, pet.Top) - before, localCursor, life.Data.SimulationSeconds, motion.Activity, arrived ? life.Pose : null);
+        if (life.Ball.Active) pet.RenderBall(life.Ball, new Point(pet.Left, pet.Top) - before, life.Data.SimulationSeconds);
+        if (life.Playground.Active) pet.RenderPlayground(life.Playground,new Point(pet.Left,pet.Top)-before,new Point(pet.Left+pet.Width/2,pet.Top+pet.Height/2),life.Data.SimulationSeconds);
         var composite = false;
         foreach (var item in itemWindows.Values)
         {
+            if (item.Item.ItemId == "ball" && life.Ball.Active) { item.Hide(); continue; }
+            if (!hidden && !item.IsVisible) item.Show();
             int? scene = null;
             if (item.Item == life.InteractionItem && life.InteractionArrived && !pet.IsInteracting && !pet.IsReacting)
             {
@@ -360,13 +373,36 @@ public sealed class AppController : IDisposable
                 };
             }
             composite |= scene.HasValue;
-            item.Refresh(life.Brain.Current.Name == "QuietProtest" && item.Item.Active, scene, actorWidth: pet.Width);
+            item.Refresh(life.Brain.Current.Name == "QuietProtest" && item.Item.Active, scene, actorWidth: pet.Width,motionTime:life.Data.SimulationSeconds);
             if (item.IsComposite) WindowPolicy.Top(item); else WindowPolicy.Behind(item, pet);
         }
         pet.ShowComposite(composite);
+        SyncBall();
+        SyncPlayground();
         if (bubble.IsVisible) WindowPolicy.Top(bubble);
         if (radial?.IsVisible == true) WindowPolicy.Top(radial);
         foreach (var panel in panels.Values) if (panel.IsVisible) WindowPolicy.Top(panel);
+    }
+    private void SyncBall()
+    {
+        if (!life.Ball.Active || hidden)
+        { ballWindow?.Close(); ballWindow = null; return; }
+        if (ballWindow == null)
+        { ballWindow = new BallWindow(life.Ball); ballWindow.Refresh(); ballWindow.Show(); }
+        ballWindow.Refresh();
+        if (life.Ball.BehindPet) WindowPolicy.Behind(ballWindow, pet); else WindowPolicy.Top(ballWindow);
+    }
+    private void SyncPlayground()
+    {
+        if(!life.Playground.Active || hidden || playgroundWindow!=null && playgroundWindow.Mode!=life.Playground.Mode)
+        {playgroundWindow?.Close();playgroundWindow=null;}
+        if(!life.Playground.Active || hidden)return;
+        if(playgroundWindow==null)
+        {
+            playgroundWindow=new PlaygroundWindow(life.Playground,life.StopPlay,life.Ball);playgroundWindow.Show();
+            if(life.Playground.Mode==PlaygroundMode.Bubbles) {System.Windows.Input.Mouse.OverrideCursor=Icons.BubbleWand;ToolCursor.Show(Icons.BubbleWandPath);}
+        }
+        playgroundWindow.Refresh();WindowPolicy.Top(playgroundWindow);
     }
     private void DebugCommand(string command)
     {
@@ -508,13 +544,13 @@ public sealed class AppController : IDisposable
             if (item.Width != boundsBefore.Width || item.Height != boundsBefore.Height || Math.Abs(item.Left-boundsBefore.Left) > .5 || Math.Abs(item.Top-boundsBefore.Top) > .5)
                 throw new InvalidOperationException("Furniture moved or resized during interaction"); // Native DPI rounding can change the reported DIP coordinate by less than a pixel.
         }
-        var cheekStart = pet.PointToScreen(new Point(pet.Width*.34,pet.Height*.56));
-        if (pet.BeginSceneGesture(new Point(.34,.56), cheekStart)) throw new InvalidOperationException("Default direct touch bypassed interaction menu");
+        var cheekStart = pet.PointToScreen(new Point(pet.Width*.18,pet.Height*.59));
+        if (pet.BeginSceneGesture(new Point(.18,.59), cheekStart)) throw new InvalidOperationException("Default direct touch bypassed interaction menu");
         pet.ArmCheek();
-        pet.BeginSceneGesture(new Point(.34,.56),cheekStart);
+        pet.BeginSceneGesture(new Point(.18,.59),cheekStart);
         pet.ContinueGesture(cheekStart - new Vector(pet.Width*.12,0));
         pet.Render(new Vector(),null,life.Data.SimulationSeconds);
-        Capture(pet,"cheek-pull"); pet.ReleaseMouseCapture();
+        Capture(pet.CheekOverlay!,"cheek-pull"); pet.ReleaseMouseCapture();
         RunIntegrationChecks();
     }
 
@@ -580,19 +616,68 @@ public sealed class AppController : IDisposable
         Buttons(radial).First(b => Equals(b.ToolTip, "딱밤 준비")).RaiseEvent(new RoutedEventArgs(System.Windows.Controls.Button.ClickEvent));
         Require(pet.FlickArmed && ToolCursor.Active && System.Windows.Input.Mouse.OverrideCursor == Icons.FlickCursor && !radial.IsVisible, "Flick menu failed to close safely or arm global custom cursor");
         Require(pet.ApplyArmed() && !pet.FlickArmed && System.Windows.Input.Mouse.OverrideCursor == null && life.Data.InteractionHistory.Last().Kind == "Flick", "Flick click failed to consume armed state");
-        pet.ArmCheek(); var start = pet.PointToScreen(new Point(pet.Width*.34,pet.Height*.56));
+        pet.ArmCheek(); var start = pet.PointToScreen(new Point(pet.Width*.18,pet.Height*.59));
         var positionBeforePull = new Point(pet.Left,pet.Top); var sizeBeforePull = pet.Width;
-        Require(pet.BeginSceneGesture(new Point(.34,.56),start), "Cheek grab failed");
+        Require(pet.BeginSceneGesture(new Point(.18,.59),start), "Cheek grab failed");
         var toDevice = PresentationSource.FromVisual(pet)!.CompositionTarget!.TransformToDevice;
         pet.ContinueGesture(start - toDevice.Transform(new Vector(pet.Width*.10,0)));
         Require(pet.CheekExpression == 5, "Moderate pull did not change expression");
         pet.ContinueGesture(start - toDevice.Transform(new Vector(pet.Width*.23,0)));
         Require(pet.CheekExpression == 6 && pet.Width == sizeBeforePull && new Point(pet.Left,pet.Top) == positionBeforePull, "Strong pull changed body size or position");
+        pet.Render(new Vector(),null,life.Data.SimulationSeconds);
+        Require(pet.CheekOverlay?.IsVisible==true && WindowPolicy.IsClickThrough(pet.CheekOverlay),"Cheek overlay clipped the stretch or intercepted mouse input");
         pet.ReleaseMouseCapture(); Require(life.Data.InteractionHistory.Last().Kind == "CheekPull", "Cheek release failed");
+        for(var angle=0;angle<8;angle++)
+        {
+            pet.ArmCheek();pet.BeginSceneGesture(new Point(.18,.59),pet.PointToScreen(new Point(pet.Width*.18,pet.Height*.59)));
+            var origin=pet.PointToScreen(new Point(pet.Width*.18,pet.Height*.59));
+            pet.ContinueGesture(origin+toDevice.Transform(new Vector(Math.Cos(angle*Math.PI/4)*pet.Width*.20,Math.Sin(angle*Math.PI/4)*pet.Height*.20)));
+            pet.Render(new Vector(),null,life.Data.SimulationSeconds);CaptureExtra(pet.CheekOverlay!,"cheek-angle-"+angle);pet.ReleaseMouseCapture();
+        }
+        pet.Render(new Vector(),null,life.Data.SimulationSeconds+.15);CaptureExtra(pet.CheekOverlay!,"cheek-release-bounce");
+        Require(pet.IsInteracting,"Release animation was immediately interrupted");
+        life.Data.SimulationSeconds+=.9;pet.Render(new Vector(),null,life.Data.SimulationSeconds);Require(!pet.IsInteracting&&!pet.CheekOverlay!.IsVisible,"Cheek overlay did not close after recovery");
         foreach (var kind in new[] { "Pet", "Praise", "Play", "Poke", "Refuse" }) Interact(kind);
         life.Data.Pet.Fun = 10; Command("Play"); Require(life.Playing, "Play failed to start before right-click check");
         OpenRadial(); Require(radial?.IsVisible == true, "Right-click HUD did not open"); radial?.Close();
         Require(!life.Playing, "Character right-click did not immediately stop play");
+        OpenRadial(); radial!.UpdateLayout();
+        Buttons(radial).First(b => Equals(b.ToolTip,"놀기")).RaiseEvent(new RoutedEventArgs(System.Windows.Controls.Button.ClickEvent));radial.UpdateLayout();
+        Buttons(radial).First(b => Equals(b.ToolTip,"공 놀이")).RaiseEvent(new RoutedEventArgs(System.Windows.Controls.Button.ClickEvent));
+        Step(0,null);Require(life.Ball.Active && ballWindow?.IsVisible==true,"Play menu did not spawn a throwable ball");
+        Require(playgroundWindow?.Mode==PlaygroundMode.Ball && WindowPolicy.IsBelow(pet,ballWindow!) && WindowPolicy.IsBelow(ballWindow!,playgroundWindow) && WindowPolicy.IsClickThrough(ballWindow!),"Ball input did not belong exclusively to the throwing overlay");
+        CaptureExtra(ballWindow!,"throwable-ball");
+        var ballPosition=life.Ball.Position;var ballPhase=life.Ball.Phase;
+        ballWindow!.RaiseEvent(new System.Windows.Input.MouseButtonEventArgs(System.Windows.Input.Mouse.PrimaryDevice,0,System.Windows.Input.MouseButton.Left){RoutedEvent=System.Windows.Input.Mouse.MouseDownEvent});
+        Require(life.Ball.Position==ballPosition && life.Ball.Phase==ballPhase,"Visual ball window still handled the old movement drag");
+        life.Ball.Grab();life.Playground.BeginAim(life.Ball.Position);life.Playground.Pull(life.Ball.Position+new Vector(-80,20));playgroundWindow!.Refresh();CaptureExtra(playgroundWindow,"ball-aim");life.Playground.ReleaseBall(life.Ball);
+        playgroundWindow!.RaiseEvent(new System.Windows.Input.MouseButtonEventArgs(System.Windows.Input.Mouse.PrimaryDevice,0,System.Windows.Input.MouseButton.Right) {RoutedEvent=System.Windows.Input.Mouse.MouseUpEvent});
+        Step(0,null);Require(!life.Ball.Active && ballWindow==null,"Ball right-click did not remove the toy");
+        Command("BallPlay");Step(0,null);OpenRadial();radial!.Close();Step(0,null);
+        Require(!life.Ball.Active && ballWindow==null,"Pet right-click left a ball window behind");
+        OpenRadial();radial!.UpdateLayout();
+        Buttons(radial).First(b=>Equals(b.ToolTip,"놀기")).RaiseEvent(new RoutedEventArgs(System.Windows.Controls.Button.ClickEvent));radial.UpdateLayout();
+        Buttons(radial).First(b=>Equals(b.ToolTip,"비눗방울")).RaiseEvent(new RoutedEventArgs(System.Windows.Controls.Button.ClickEvent));Step(0,null);
+        Require(playgroundWindow?.IsVisible==true && ToolCursor.Active && System.Windows.Input.Mouse.OverrideCursor==Icons.BubbleWand,"Bubble menu did not arm a real wand cursor");
+        life.Playground.Blow(life.Habitat.PetCenter+new Vector(-200,-180));Step(.05,null);CaptureExtra(playgroundWindow!,"bubble-play");
+        Command("SnackPlay");Step(0,null);Require(!ToolCursor.Active,"Switching games did not restore the wand cursor");
+        var launch=life.Habitat.PetCenter+new Vector(-140,-90);life.Playground.BeginAim(launch);life.Playground.Pull(launch+new Vector(-65,40));
+        playgroundWindow!.Refresh();CaptureExtra(playgroundWindow,"snack-aim");
+        playgroundWindow.RaiseEvent(new System.Windows.Input.MouseButtonEventArgs(System.Windows.Input.Mouse.PrimaryDevice,0,System.Windows.Input.MouseButton.Right){RoutedEvent=System.Windows.Input.Mouse.MouseUpEvent});Step(0,null);
+        Require(!life.Playground.Active && playgroundWindow==null && !ToolCursor.Active,"Mini-game right-click failed to restore desktop input");
+        CharacterSprites.Select("kurimanju");
+        var beerPet=new PetWindow("kurimanju") {Width=128,Height=136};
+        try
+        {
+            beerPet.AnimateFood(life.Catalog["beer"]);
+            ImageSource? previous=null;
+            foreach(var t in new[]{.1,.8,1.8,3.2})
+            {
+                beerPet.Render(new Vector(),null,t);Require(beerPet.Portrait!=previous,"Beer animation did not change drinking/exhale poses");previous=beerPet.Portrait;
+                CaptureExtra(beerPet,"kurimanju-beer-"+t.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            }
+        }
+        finally {beerPet.Close();CharacterSprites.Select(life.Character.AssetSet);}
         OpenRadial(); radial!.UpdateLayout();
         Buttons(radial).First(b => Equals(b.ToolTip,"더보기")).RaiseEvent(new RoutedEventArgs(System.Windows.Controls.Button.ClickEvent)); radial.UpdateLayout();
         Require(Buttons(radial).Any(b => Equals(b.ToolTip,"종료")), "More menu has no exit"); radial.Close();
@@ -673,6 +758,8 @@ public sealed class AppController : IDisposable
         finishing = true; timer.Stop(); activity?.Dispose(); UpdatePosition(); save.SaveAsync(life.Data).GetAwaiter().GetResult();
         pet.CancelArmed();
         timer.Tick -= Tick;
+        ballWindow?.Close();
+        playgroundWindow?.Close();
         pet.DragFinished -= OnDrop; pet.RecallRequested -= Recall; pet.SizeChanged -= OnSizeChanged;
         pet.RadialRequested -= OpenRadial; pet.InteractionRequested -= Interact;
         pet.HideRequested -= Hide;

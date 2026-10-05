@@ -55,3 +55,9 @@ https://www.sanrio.co.jp/characters/kuromi/
 
 두 짧은 자체 번역 이외의 대사는 원작 말투를 참고한 앱용 창작이며, 공식 한국어 번역이나 원작 직접 인용으로 표시하지 않습니다. 게시물 탐색에는 아래 비공식 등장 회차 목록을 사용했고, 대사는 목록 제목이 아닌 원작 이미지와 대조했습니다.
 https://chiikawa.hatenablog.jp/entry/character/dekatsuyo
+
+## 쿠리만쥬 맥주 반응 (2026-10-02)
+원작 만화의 캔을 들어 마시는 자세와 한 모금 뒤의 ‘ハーッ’를 참고했습니다. 앱의 ‘하아—!’는 짧은 자체 한국어 번역입니다. 전용 스프라이트는 앱용으로 생성했습니다.
+https://x.com/ngnchiikawa/status/1368093256744017920
+https://x.com/ngnchiikawa/status/1368568075151282185
+https://x.com/ngnchiikawa/status/1223123105758924800

@@ -63,6 +63,7 @@ public static class CharacterSprites
             var rearRight = new TransformedBitmap(result[row * 8 + 5], new ScaleTransform(-1, 1));
             rearRight.Freeze(); result[row * 8 + 7] = rearRight;
         }
+        for(var i=0;i<result.Length;i++)UI.CharacterLayers.Register(result[i],id,"atlas",i,i<24?i%8:i is >=44 and <56?2:-1);
         cache[id] = result; return result;
     }
     public static BitmapSource[] Frames(string id, int start, int count) => Atlas(id).Skip(start).Take(count).ToArray();

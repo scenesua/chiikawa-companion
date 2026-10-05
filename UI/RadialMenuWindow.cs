@@ -105,7 +105,7 @@ public sealed class RadialMenuWindow : Window
     {
         "애정" => new[] { ("머리 복복복", "Pet"), ("턱 복복복", "Chin"), ("칭찬", "Praise"), ("달래기", "Soothe") },
         "돌보기" => new[] { ("밥 넣기", "Food"), ("간식 주기", "Snack"), ("물 채우기", "Water"), ("보관함", "Inventory"), ("간식 거절", "Refuse") },
-        "놀기" => new[] { ("같이 놀기", "Play"), ("놀이 끝내기", "StopPlay"), ("커서 놀이", "CursorPlay") },
+        "놀기" => new[] { ("공 놀이", "BallPlay"), ("비눗방울", "BubblePlay"), ("간식 받기", "SnackPlay"), ("같이 놀기", "Play"), ("놀이 끝내기", "StopPlay"), ("커서 놀이", "CursorPlay") },
         "장난" => new[] { ("콕 찌르기", "Poke"), ("볼 당기기", "CheekArm"), ("딱밤 준비", "FlickArm") },
         "대화" => new[] { ("이름 부르기", "Talk:Greeting"), ("뭐 해?", "Talk:IdleTalk"), ("배고파?", "Talk:Hungry"), ("졸려?", "Talk:Sleepy") },
         "생활" => new[] { ("이리 와", "Come"), ("밥 먹어", "Force:Eat"), ("물 마셔", "Force:Drink"), ("자러 가", "Force:Sleep"), ("깨우기", "Wake"), ("잠깐 쉬기", "Rest") },

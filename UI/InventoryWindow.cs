@@ -32,6 +32,7 @@ public sealed class InventoryWindow : CompanionPanelWindow
                 }
                 else if (item.Category is "Snack" or "Drink") panel.Children.Add(Theme.Button("간식 주기", () =>
                 { life.GiveSnack(item.Id); changed(); Update(); }));
+                else if(item.Id=="ball") panel.Children.Add(Theme.Button("공 놀이",()=>{life.StartBallPlay();changed();Close();}));
                 else
                 {
                     panel.Children.Add(Theme.Text("배치 가능 " + life.Shop.AvailableFurniture(item.Id) + "개", 12));

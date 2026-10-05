@@ -12,6 +12,7 @@
   "Patience": 0.38,
   "FoodLove": 0.78,
   "SnackLove": 0.94,
+  "SnackCatchChance": 0.75,
   "Sleepiness": 0.55,
   "FavoriteFoods": [
     "nuts"

@@ -30,7 +30,9 @@ public static class InteractionSprites
             var bodyFraction = id == "momonga" ? .70 : id == "anoko" ? .78 : 1;
             mealScales[id] = .72 / (maxWidth * scale / 240 * bodyFraction);
         }
-        return result[MealIndex(food) + (beat & 1)];
+        var index=MealIndex(food)+(beat&1);
+        Momonga.UI.CharacterLayers.Register(result[index],id,"meal",index,2);
+        return result[index];
     }
     public static double MealScale(string food) { _ = MealFrame(food,0); return mealScales[CharacterSprites.Current]; }
     private static readonly BitmapSource[] momongaHug = PetAnimator.LoadFrames("momonga-idle", "momonga-idle-frames",12);
@@ -65,6 +67,7 @@ public static class InteractionSprites
             drinks[id] = result;
             drinkScales[id] = .72 / (maxWidth * scale / 240);
         }
+        Momonga.UI.CharacterLayers.Register(result[beat&1],id,"drink",beat&1,2);
         return result[beat & 1];
     }
     public static System.Windows.Media.ImageSource ActorFrame(int index) => CharacterSprites.Current == "momonga" ? actors[index] : index >= 6 ? DrinkFrame(index - 6) : CharacterSprites.Frame(56 + index);

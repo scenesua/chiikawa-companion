@@ -21,9 +21,42 @@ namespace Momonga.Simulation;
 
 public static class LifeChecks
 {
+    internal static void CheckCheek()
+    {
+        var drag=new CheekDrag();
+        var marked=new byte[100*100*4];for(var i=0;i<marked.Length;i+=4){marked[i]=240;marked[i+1]=245;marked[i+2]=250;marked[i+3]=255;}
+        var eyeY=(int)((CheekDrag.CheekY-.085)*100);
+        var eye=(eyeY*100+30)*4;marked[eye]=marked[eye+1]=marked[eye+2]=20;
+        drag.Begin(new Point(CheekDrag.Cheeks.Left,CheekDrag.CheekY),true);drag.Move(new Vector(-.20,.17));
+        var layers=drag.Warp(marked,100,100);var fixedEye=((eyeY+50)*200+30+50)*4;
+        Require(layers[fixedEye]==20&&layers[fixedEye+3]==255,"Expression layer stretched with the cheek");
+        var pixels=new byte[100*100*4];for(var i=0;i<pixels.Length;i+=4){pixels[i]=70;pixels[i+1]=100;pixels[i+2]=120;pixels[i+3]=255;}
+        for(var side=0;side<2;side++)
+        for(var angle=0;angle<8;angle++)
+        {
+            drag.Begin(new Point(side==0?.30:.68,.59),side==0);
+            drag.Move(new Vector(Math.Cos(angle*Math.PI/4)*.23,Math.Sin(angle*Math.PI/4)*.23));
+            var warped=drag.Warp(pixels,100,100);var ear=((20+50)*200+50+50)*4;
+            Require(warped[ear]==70&&warped[ear+3]==255,"Cheek pull moved an ear");
+            var initial=drag.Pull;drag.Release(10);drag.Update(10);
+            Require((drag.Pull-initial).Length<.0001,"Release jumped instead of starting from the held pose");
+            drag.Update(10.15);
+            Require(drag.Pull.X*initial.X+drag.Pull.Y*initial.Y<0,"Cheek release had no opposite bounce");
+            drag.Update(10.9);Require(drag.Pull.Length==0&&!drag.Active(10.9),"Cheek never settled");
+        }
+        drag.Begin(new Point(.18,.56),true);var edge=drag.Radius;drag.Begin(new Point(.34,.60),true);
+        Require(drag.Radius>edge && Math.Abs(drag.Grab.Y-Math.Clamp(.60,CheekDrag.CheekY-.04,CheekDrag.CheekY+.04))<.0001,"Grab location or amount of skin was discarded");
+        drag.Move(new Vector(-100,100));Require(drag.Strength<.381,"Extreme cheek drag was unbounded");
+        drag.Begin(new Point(.30,.56),true);drag.Release(0);Require(!drag.Active(0),"Click without pulling played a release reaction");
+    }
     public static void Run()
     {
+        Momonga.Character.LayeredFrame.RunChecks();
         Momonga.Updates.UpdateService.RunChecks();
+        CheckBall();
+        CheckPlayground();
+        CheckBeer();
+        CheckPlayBalance();
         var catalog = ItemCatalog.Load(); var character = CharacterDefinition.Load();
         var mealInterval=new PetState { Hunger=5 };
         mealInterval.Update(3*3600); Require(mealInterval.Hunger<45,"Meal needed before three hours");
@@ -61,16 +94,8 @@ public static class LifeChecks
         Require(life.Habitat.SizeOf(food) == life.Habitat.SizeOf(bedTarget), "Furniture sizes are not linked");
 #if !CROSS_PLATFORM
         Require(!data.Settings.DirectTouch && !speechAnchor.DirectTouch(), "Direct touch should be opt-in");
-        for (var side = 0; side < 2; side++)
-        {
-            var previous = double.NegativeInfinity;
-            for (var x = -40; x <= 180; x++)
-            {
-                var mapped = CheekSurface.MapX(x, side == 0 ? 25 : 83, side == 0 ? 46 : 64, 32, side == 0);
-                Require(mapped > previous, "Cheek deformation folded over itself"); previous = mapped;
-            }
-        }
 #endif
+        CheckCheek();
         data.Pet.Hunger = 90; life.Habitat.PetCenter = life.Habitat.Center(food); life.RefreshContext();
         Require(life.Brain.Force("Eat", life.Context), "Eating unavailable with food");
         for (var i = 0; i < 7; i++) life.Update(1, new Point(600, 300), false);
@@ -146,8 +171,9 @@ public static class LifeChecks
         foreach (var name in new[] { "AskFood", "AskWater", "AskSnack", "AskAttention" })
             Require(!life.Brain.Force(name, life.Context), "Quiet Habitat admitted " + name);
         var hunger = data.Pet.Hunger;
+        var quietSocial = data.Pet.Social;
         for (var i = 0; i < 3600; i++) life.Update(1, new Point(600, 300), false);
-        Require(autoSpeech == 0 && data.Pet.Hunger > hunger && data.Pet.Social < 35 && data.Pet.Stress > 5,
+        Require(autoSpeech == 0 && data.Pet.Hunger > hunger && data.Pet.Social < quietSocial && data.Pet.Stress > 5,
             "Quiet Habitat paused life, interrupted user, or missed long-duration trade-off");
         sign.Active = false; life.Update(1, new Point(600, 300), false); Require(!life.Quiet, "Removing sign failed to exit quiet");
         sign.Active = true; life.Habitat.PetCenter = new Point(600, 300); life.Update(1, new Point(600, 300), false);
@@ -195,15 +221,18 @@ public static class LifeChecks
         var requests = 0; requestLife.Speech += (tag, autonomous) => { if (tag == "Hungry" && autonomous) requests++; };
         for (var i = 0; i < 60; i++) requestLife.Update(1, new Point(500, 200), false);
         Require(requests == 2, "Request repeated more than once or lost its retry");
-        Require(PetInteractionDetector.Region(new Point(64, 20), 128, 136) == HitRegion.Head, "Head hit region incorrect");
-        Require(PetInteractionDetector.Region(new Point(64, 100),128,136) == HitRegion.Chin, "Chin hit region incorrect");
+        Require(PetInteractionDetector.Region(new Point(55, 49), 128, 136) == HitRegion.Head, "Head hit region incorrect");
+        var chin = CharacterAnatomy.Current.Area("Chin").Center;
+        Require(PetInteractionDetector.Region(new Point(chin.X*128,chin.Y*136),128,136) == HitRegion.Chin, "Calibrated chin hit region incorrect");
         Require(catalog["free-rice"].Price == 0 && catalog["free-rice"].Hunger >= 40 && catalog["pudding"].Category == "Snack" && catalog["curry-rice"].Utensil == "Spoon", "Food category, utensils or emergency meal incorrect");
         Require(catalog.Values.Where(i => i.Category == "Snack").Select(i => i.AnimationFrame).Distinct().Count() == catalog.Values.Count(i => i.Category == "Snack"), "Snacks share generic animation");
         var playData = new SaveData(); var playLife = new LifeSimulation(playData,character,catalog); playData.Pet.Fun = 10;
         playLife.StartPlay();
         for (var i = 0; i < 30; i++) { if (playLife.Destination.HasValue) playLife.Habitat.PetCenter = playLife.Destination.Value; playLife.Update(1,new Point(),false); }
         Require(playLife.Playing && playLife.Brain.Current.Name == "Play", "Play ended before satisfaction");
-        playData.Pet.Fun = 95; playLife.Update(0,new Point(),false); Require(!playLife.Playing,"Satisfied pet did not stop play");
+        playData.Pet.Fun = 100; playLife.Update(0,new Point(),false); Require(playLife.Playing,"Satisfied play ended before one minute");
+        for(var i=0;i<30;i++)playLife.Update(1,new Point(),false);
+        Require(!playLife.Playing,"Satisfied pet did not stop play after one minute");
         playData.Pet.Fun = 20; playLife.StartPlay(); playLife.StopPlay(); Require(!playLife.Playing && playLife.Brain.Current.Name == "Idle", "Manual stop failed");
         playLife.StartPlay(); Require(playLife.Brain.Force("Sleep", playLife.Context), "Sleep could not interrupt play");
         playLife.Update(0, new Point(), false);
@@ -224,5 +253,143 @@ public static class LifeChecks
         Theme.Apply(character.Theme);
 #endif
     }
+    private static void CheckBeer()
+    {
+        var catalog=ItemCatalog.Load();
+        foreach(var id in new[]{"kurimanju","momonga"})
+        {
+            var data=new SaveData(); data.Inventory["beer"]=1; data.Pet.Fun=10; data.Pet.Energy=10;
+            var life=new LifeSimulation(data,CharacterDefinition.Load(id),catalog); var spoken=0; var consumed=0;
+            life.Speech+=(tag,_)=>{if(tag=="Snack:beer")spoken++;};life.Consumed+=_=>consumed++;
+            Require(life.GiveSnack("beer") && consumed==1 && data.Inventory["beer"]==0,"Beer consumption failed");
+            if(id=="kurimanju")
+            {
+                Require(data.Pet.Fun==80 && data.Pet.Energy==75 && spoken==0,"Kurimanju beer boost or toast timing failed");
+                life.Update(1,new Point(),false);Require(spoken==0,"Beer toast happened before drinking");
+                life.Update(.6,new Point(),false);life.Update(.6,new Point(),false);Require(spoken==1,"Beer toast failed or repeated");
+            }
+            else Require(data.Pet.Energy==10 && data.Pet.Fun<80 && spoken==1,"Kurimanju beer bonus leaked to another character");
+        }
+    }
+    private static void CheckPlayBalance()
+    {
+        var pet=new PetState{Fun=75,Social=75};pet.Update(60);
+        Require(Math.Abs(pet.Fun-74.8)<.001 && Math.Abs(pet.Social-74.4)<.001,"Fun/attention decay is still too fast");
+        pet.Offline(TimeSpan.FromSeconds(1));Require(pet.Fun>74 && pet.Social>74,"Brief offline time abruptly emptied fun/attention");
+        var data=new SaveData();data.Items.Add(new HabitatItem{ItemId="ball"});data.Inventory["ball"]=1;
+        var life=new LifeSimulation(data,CharacterDefinition.Load(),ItemCatalog.Load());
+        Require(!data.Items.Any(i=>i.ItemId=="ball") && life.Shop.Quantity("ball")==1 && life.Shop.Place("ball")==null,"Ball remained permanent furniture or lost ownership");
+        life.Habitat.PetCenter=new Point(500,400);data.Pet.Fun=100;data.Pet.Social=10;
+        life.StartPlayground(PlaygroundMode.Snacks);life.Playground.CatchChance=1;data.SimulationSeconds+=120;
+        for(var round=0;round<2;round++)
+        {
+            life.Playground.BeginAim(new Point(420,400));life.Playground.Pull(new Point(360,400));life.Playground.ReleaseAim();
+            for(var i=0;i<30;i++)life.Update(.033,new Point(),false);
+            Require(life.Playground.Active && life.Playground.Hits==round+1,"Snack tossing ended after catching or when fun was full");
+        }
+        Require(data.Pet.Social>10,"Snack play did not replenish attention");life.StopPlay();
+        data.Pet.Fun=20;data.Pet.Social=10;life.StartBallPlay();life.Playground.BeginAim(new Point(250,100));life.Playground.Pull(new Point(190,100));life.Ball.Grab();life.Playground.ReleaseBall(life.Ball);
+        var y=life.Ball.Position.Y;life.Update(.1,new Point(),false);Require(life.Ball.Position.X>190 && life.Ball.Position.Y==y && !life.Playground.Aiming,"Slingshot ball did not travel straight");
+        life.Ball.Grab();life.Ball.Drag(life.Habitat.PetCenter);life.Ball.Throw(new Vector());var fun=data.Pet.Fun;var social=data.Pet.Social;
+        life.Update(.5,new Point(),false);Require(data.Pet.Fun-fun is >1 and <2 && data.Pet.Social>social,"Ball reward is too fast or does not replenish attention");
+        life.StopPlay();Require(!life.Ball.Active && !life.Playground.Active,"Ball stop left a toy or throwing overlay alive");
+    }
     private static void Require(bool condition, string message) { if (!condition) throw new InvalidOperationException(message); }
+    private static void CheckBall()
+    {
+        var ball = new BallGame { Bounds = new Rect(-600,-400,600,400) };
+        var actor = new Size(128,136); var home = new Point(-300,-200);
+        ball.Start(home,1); Require(ball.Grab(),"Ball could not be grabbed");
+        ball.Drag(new Point(-15,-15)); ball.Throw(new Vector(1200,1200));
+        ball.Update(.1,home,actor,false);
+        Require(ball.Position.X < -20 && ball.Position.Y < -20,"Ball did not bounce off both monitor edges");
+        for(var i=0;i<60;i++) ball.Update(.1,home,actor,false);
+        Require(ball.Position.X>=-586 && ball.Position.X<=-14 && ball.Position.Y>=-386 && ball.Position.Y<=-14,"Ball escaped negative-coordinate monitor");
+        ball.Start(home,1); ball.Grab(); ball.Drag(new Point(-100,-150)); ball.Throw(new Vector());
+        var reward=ball.Update(.5,new Point(-100,-150),actor,false);
+        Require(ball.Phase==BallPhase.Catching && reward>0,"Pet did not catch the ball");
+        ball.Update(.5,new Point(-100,-150),actor,false);
+        Require(ball.Phase==BallPhase.Returning && ball.Target==home,"Pet did not bring the ball home");
+        ball.Update(.1,home,actor,false); Require(ball.Phase==BallPhase.Ready,"Returned ball did not become throwable again");
+        ball.Finish(); ball.Update(.5,home,actor,false); Require(ball.BehindPet && ball.Opacity<1,"Satisfied pet did not hide the ball behind its back");
+        ball.Update(.7,home,actor,false); Require(!ball.Active,"Hidden ball did not finish play");
+        ball.Start(home,1); ball.Cancel(); Require(!ball.Active,"Ball stop failed");
+        var life = new LifeSimulation(new SaveData(),CharacterDefinition.Load(),ItemCatalog.Load());
+        life.Habitat.PetCenter=new Point(300,200);life.Data.Pet.Fun=20;
+        Require(life.StartBallPlay() && life.Playing && life.InteractionItem==null,"Ball play still requires furniture or a purchase");
+        life.Data.Pet.Fun=100;life.Update(.2,home,false);Require(life.Ball.Phase!=BallPhase.Hiding,"Ball ended immediately when already happy");
+        life.Data.SimulationSeconds+=60;life.Update(.2,home,false);
+        Require(life.Ball.Phase==BallPhase.Hiding,"Satisfaction did not start the ending animation");
+        life.Update(1,home,false);Require(!life.Playing && !life.Ball.Active,"Ball ending left pet playing");
+        life.StartBallPlay();life.StopPlay();Require(!life.Playing && !life.Ball.Active,"Manual stop left the ball alive");
+        life.Data.Pet.Fun=20;life.StartBallPlay();
+        for(var i=0;i<54000 && life.Ball.Active;i++)
+        {
+            if(life.Ball.Phase==BallPhase.Ready)life.Ball.Throw(new Vector(380,90));
+            life.Update(1.0/30,home,false);
+            if(life.Destination is Point target)
+            {
+                var offset=(Vector)(target-life.Habitat.PetCenter);
+                if(offset.Length>.01) life.Habitat.PetCenter+=offset*(Math.Min(offset.Length,210.0/30)/offset.Length);
+            }
+        }
+        Require(!life.Playing && !life.Ball.Active && life.Data.Pet.Fun>=94,"Autonomous fetch loop failed to satisfy the pet and finish");
+    }
+    private static void CheckPlayground()
+    {
+        var pet=new Point(500,400);var size=new Size(128,136);
+        var game=new PlaygroundGame {Bounds=new Rect(0,0,1000,800)};
+        game.Start(PlaygroundMode.Bubbles,1,pet);game.Blow(new Point(800,200));game.Blow(new Point(800,200));
+        Require(game.Particles.Count==5,"Bubble click was not a throttled burst");
+        game.Update(.05,pet,size,false);Require(game.Target.HasValue,"Pet did not target a bubble");
+        var before=game.Particles[0].Position;game.Update(1,pet,size,true);
+        Require(game.Particles[0].Position==before,"Paused bubbles kept drifting");
+        var hits=0;
+        for(var i=0;i<300;i++)
+        {
+            hits+=game.Update(1.0/30,pet,size,false);
+            if(game.Target is Point target) {var d=(Vector)(target-pet);if(d.Length>.01)pet+=d*(Math.Min(d.Length,210.0/30)/d.Length);}
+        }
+        Require(hits>0 && game.Particles.Count==0,"Bubble chase did not pop and clean up particles");
+        pet=new Point(500,400);game.Start(PlaygroundMode.Snacks,1,pet);
+        game.BeginAim(new Point(380,410));game.Pull(new Point(300,410));game.ReleaseAim();
+        game.Update(.033,pet,size,false);
+        Require(game.Target.HasValue && ((Vector)(game.Target.Value-pet)).Length<=60.001,"Snack prediction did not make a bounded anticipation step");
+        hits=0;
+        for(var i=0;i<100;i++)
+        {
+            hits+=game.Update(1.0/30,pet,size,false);
+            if(game.Target is Point target) {var d=(Vector)(target-pet);if(d.Length>.01)pet+=d*(Math.Min(d.Length,85.0/30)/d.Length);}
+        }
+        Require(hits==1 && game.Particles.Count==0,"Predicted snack was not caught exactly once");
+        game.Start(PlaygroundMode.Snacks,1,pet);game.BeginAim(new Point(120,100));game.Pull(new Point(100,100));game.ReleaseAim();
+        game.Update(.05,pet,size,false);Require(!game.Target.HasValue,"Pet chased a distant missed snack");
+        for(var i=0;i<40;i++)game.Update(.1,pet,size,false);
+        Require(game.Hits==0 && game.Misses==1 && game.Particles.Count==0,"Missed snack did not disappear without feeding");
+        Require(game.WatchTarget==null && game.Deadpan,"Miss did not end in a front-facing deadpan reaction");
+        game.CatchChance=0;game.Start(PlaygroundMode.Snacks,1,new Point(500,400));game.BeginAim(new Point(420,400));game.Pull(new Point(360,400));game.ReleaseAim();
+        Require(game.WatchTarget.HasValue,"Pet did not watch a flying treat");
+        for(var i=0;i<30;i++)game.Update(.033,new Point(500,400),size,false);
+        Require(game.Hits==0 && game.Bonks==1 && game.Deadpan,"Failed catch did not bonk then deadpan");game.CatchChance=1;
+        game.Start(PlaygroundMode.Snacks,.5,new Point(400,200));game.BeginAim(new Point(240,200));game.Pull(new Point(100,200));game.ReleaseAim();
+        Require(game.Update(.5,new Point(400,200),new Size(64,68),false)==1,"Fast snack skipped a small pet");
+        game.Stop();Require(!game.Active && game.Particles.Count==0 && !game.Aiming,"Playground cancellation retained projectiles or capture state");
+        var life=new LifeSimulation(new SaveData(),CharacterDefinition.Load(),ItemCatalog.Load());
+        life.Habitat.PetCenter=new Point(500,400);life.Data.Pet.Fun=20;
+        life.StartPlayground(PlaygroundMode.Snacks);var hunger=life.Data.Pet.Hunger;var consumed=0;
+        life.Playground.CatchChance=1;
+        life.Consumed+=_=>consumed++;life.Playground.BeginAim(new Point(420,400));life.Playground.Pull(new Point(360,400));life.Playground.ReleaseAim();
+        for(var i=0;i<30;i++)life.Update(.033,pet,false);
+        Require(consumed==1 && life.Data.Pet.Hunger<hunger,"Snack hit did not feed or animate eating");
+        life.StartPlayground(PlaygroundMode.Snacks);life.Playground.CatchChance=0;var bonks=0;hunger=life.Data.Pet.Hunger;
+        life.ActionAnimation+=kind=>{if(kind=="SnackBonk")bonks++;};life.Playground.BeginAim(new Point(420,400));life.Playground.Pull(new Point(360,400));life.Playground.ReleaseAim();
+        for(var i=0;i<30;i++)life.Update(.033,pet,false);
+        Require(bonks==1 && consumed==1 && life.Data.Pet.Hunger>=hunger,"Head bonk fed the pet or failed to animate");
+        Require(CharacterDefinition.All.Select(c=>c.SnackCatchChance).Distinct().Count()>2 && CharacterDefinition.Load("rakko").SnackCatchChance==1,"Catch probabilities did not differ by character");
+        life.StartPlayground(PlaygroundMode.Bubbles);life.Data.Pet.Fun=100;life.Playground.Blow(life.Habitat.PetCenter);life.Update(.05,pet,false);
+        Require(life.Playground.Active,"Bubbles ended after the first burst");
+        life.Data.SimulationSeconds+=60;life.Update(.05,pet,false);
+        Require(!life.Playing && !life.Playground.Active,"Satisfied pet did not end bubble play");
+        life.StartPlayground(PlaygroundMode.Snacks);life.StopPlay();Require(!life.Playground.Active,"Manual stop retained snack play");
+    }
 }

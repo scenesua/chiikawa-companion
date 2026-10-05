@@ -12,6 +12,7 @@
   "Patience": 0.3,
   "FoodLove": 0.78,
   "SnackLove": 0.94,
+  "SnackCatchChance": 0.98,
   "Sleepiness": 0.15,
   "FavoriteFoods": [
     "curry-rice",

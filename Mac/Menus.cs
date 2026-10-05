@@ -7,6 +7,7 @@ using Momonga.Animation;
 using Momonga.Character;
 using Momonga.Inventory;
 using Momonga.Persistence;
+using Momonga.Simulation;
 
 namespace Momonga.Mac;
 
@@ -19,6 +20,7 @@ public sealed partial class CompanionController
     }
     private void ShowPanel(string title,Control body,Action? back=null)
     {
+        if(life.Playground.Active){life.StopPlay();ClosePlayground();}
         panel?.Close();var win=TransparentWindow(370,440);panel=win;
         var header=new Grid {ColumnDefinitions=new ColumnDefinitions("auto,*,auto")};
         header.Children.Add(Button("뒤로",()=>{if(back!=null)back();else{win.Close();panel=null;}}));
@@ -56,8 +58,8 @@ public sealed partial class CompanionController
     private void Affection()=>List("애정",new (string,Action)[]{("머리 쓰다듬기",()=>Arm("Pet")),("턱 쓰다듬기",()=>Arm("Chin")),("칭찬하기",()=>{life.Interact("Praise");panel?.Close();}),("달래기",()=>{life.Interact("Soothe");panel?.Close();})});
     private void Pranks()=>List("장난",new (string,Action)[]{("볼 잡아당기기",()=>Arm("CheekPull")),("딱밤 준비",()=>Arm("Flick")),("콕 찌르기",()=>Arm("Poke"))});
     private void Care()=>List("돌보기",new (string,Action)[]{("간식 고르기",()=>Items("간식",i=>i.Category is "Snack" or "Drink",false,null)),("밥 넣기",()=>ChooseBowl()),("물 채우기",()=>{foreach(var b in life.Data.Items.Where(i=>i.ItemId=="water-bowl"))b.Water=100;panel?.Close();})});
-    private void Play()=>List("놀기",new (string,Action)[]{("함께 놀기",()=>{life.StartPlay(true);panel?.Close();}),("공 놀이",()=>UseToy("ball")),("인형 놀이",()=>UseToy("doll")),("놀이 그만",()=>{life.StopPlay();panel?.Close();})});
-    private void UseToy(string id){var toy=life.Data.Items.FirstOrDefault(i=>i.ItemId==id);if(toy==null){if(life.Shop.AvailableFurniture(id)==0)life.Shop.Buy(id);toy=life.Shop.Place(id);}if(toy!=null)life.UseItem(toy);panel?.Close();SyncFurniture();}
+    private void Play()=>List("놀기",new (string,Action)[]{("함께 놀기",()=>{life.StartPlay(true);panel?.Close();}),("공 놀이",()=>UseToy("ball")),("비눗방울",()=>StartPlayground(PlaygroundMode.Bubbles)),("간식 받기",()=>StartPlayground(PlaygroundMode.Snacks)),("인형 놀이",()=>UseToy("doll")),("놀이 그만",()=>{life.StopPlay();panel?.Close();})});
+    private void UseToy(string id){panel?.Close();life.RefreshContext(false);if(id=="ball"){life.StartBallPlay();return;}var toy=life.Data.Items.FirstOrDefault(i=>i.ItemId==id);if(toy==null){if(life.Shop.AvailableFurniture(id)==0)life.Shop.Buy(id);toy=life.Shop.Place(id);}if(toy!=null)life.UseItem(toy);SyncFurniture();}
     private void Living()=>List("생활",new (string,Action)[]{("쉬기",()=>{life.Rest(30);panel?.Close();}),("잠자기",()=>{var bed=life.Habitat.Find("Bed");if(bed!=null)life.UseItem(bed);panel?.Close();}),("깨우기",()=>{life.Rest(15);life.Interact("Talk");panel?.Close();}),("가구 놓기",()=>Items("가구",i=>!i.Consumable,false,null))});
     private void More()=>List("더보기",new (string,Action)[]{("캐릭터 변경",Characters),("설정",Settings),("상점",()=>Items("상점",_=>true,true,null)),("보관함",()=>Items("보관함",_=>true,false,null)),("잠깐 숨기기",Hide),("종료",Exit)});
     private void ChooseBowl()
@@ -101,6 +103,8 @@ public sealed partial class CompanionController
     }
     private void Switch(string id)
     {
+        CloseBall();
+        ClosePlayground();
         var definition=CharacterDefinition.Load(id);life.Data.CharacterId=id;life=new Simulation.LifeSimulation(life.Data,definition,life.Catalog);dialogue=new Content.DialogueService(life.Data,definition.DialogueSetId);motion=new Simulation.PetMotion(character:definition);AttachLife();panel?.Close();Speak("Greeting",false);
     }
     private void Items(string title,Func<ItemDefinition,bool> filter,bool shop,HabitatItem? bowl)
@@ -119,6 +123,7 @@ public sealed partial class CompanionController
                 if(shop)success=life.Shop.Buy(item.Id);
                 else if(item.Category=="Food")success=bowl!=null?life.Shop.FillFood(bowl,item.Id):false;
                 else if(item.Consumable)success=life.GiveSnack(item.Id);
+                else if(item.Id=="ball"){success=life.StartBallPlay();if(success){panel?.Close();SyncBall();SyncPlayground();return;}}
                 else success=life.Shop.Place(item.Id)!=null;
                 if(success){SyncFurniture();Items(title,filter,shop,bowl);}else status.Text=item.Category=="Food"&&!shop?"빈 밥그릇에서 밥 넣기를 선택해라.":"AP 또는 보유 수량을 확인해줘.";
             });button.Content=card;button.Padding=new Thickness(7);grid.Children.Add(button);
@@ -153,10 +158,34 @@ public sealed partial class CompanionController
             foreach(var item in life.Catalog.Values.Where(i=>i.Category=="Food"))_=Sprites.Meal(c.AssetSet,item.Id,1);
             _=Sprites.Drink(c.AssetSet,0);
         }
+        foreach(var t in new[]{.1,.8,1.8,3.2}) {petView.Sprite=Sprites.Beer(t);Capture(petView,"kurimanju-beer-"+t.ToString(System.Globalization.CultureInfo.InvariantCulture));}
+        using(var view=new CheekView {Width=256,Height=272})
+        {
+            view.Measure(new Size(256,272));view.Arrange(new Rect(0,0,256,272));
+            for(var angle=0;angle<8;angle++)
+            {
+                cheekDrag.Begin(new Point(.30,.59),true);cheekDrag.Move(new Vector(Math.Cos(angle*Math.PI/4)*.20,Math.Sin(angle*Math.PI/4)*.20));
+                view.Drag=cheekDrag;view.Now=0;Capture(view,"cheek-angle-"+angle);
+            }
+            cheekDrag.Release(0);cheekDrag.Update(.15);view.Now=.15;Capture(view,"cheek-release-bounce");
+            cheekDrag.Update(1);
+            foreach(var c in CharacterDefinition.All)
+            {
+                CharacterSprites.Current=c.AssetSet;cheekDrag.Begin(new Point(Momonga.Input.CheekDrag.Cheeks.Left,Momonga.Input.CheekDrag.CheekY),true);view.Now=0;Capture(view,c.CharacterId+"-cheek-neutral");cheekDrag.Move(new Vector(-.20,.08));
+                view.Now=0;Capture(view,c.CharacterId+"-cheek");cheekDrag.Release(0);cheekDrag.Update(1);
+            }
+            CharacterSprites.Current=life.Character.AssetSet;
+        }
         Radial();Capture((Control)panel!.Content!,"radial");Characters();Capture((Control)panel!.Content!,"characters");Settings();Capture((Control)panel!.Content!,"settings");
         Items("밥 상점",i=>i.Category=="Food",true,null);Capture((Control)panel!.Content!,"shop");
         ShowUpdate(new Momonga.Updates.AvailableUpdate(new Version(0,3,2),"오데 대사 수정\n실행 시 새 버전 확인","",154000000,""));Capture((Control)panel!.Content!,"updates");panel.Close();
         foreach(var item in life.Data.Items){ItemMenu(item);Capture((Control)panel!.Content!,item.ItemId);}
+        UseToy("ball");SyncBall();if(!life.Ball.Active || ballWindow?.IsVisible!=true)throw new InvalidOperationException("Ball menu did not spawn a toy");
+        Capture((Control)ballWindow.Content!,"throwable-ball");life.StopPlay();SyncBall();if(ballWindow!=null)throw new InvalidOperationException("Stopped ball window stayed alive");
+        StartPlayground(PlaygroundMode.Bubbles);life.Playground.Blow(life.Habitat.PetCenter+new Vector(200,-150));life.Playground.Update(.05,life.Habitat.PetCenter,life.ActorSize,false);SyncPlayground();
+        if(playgroundWindow?.IsVisible!=true)throw new InvalidOperationException("Bubble playground did not open");Capture((Control)playgroundWindow.Content!,"bubble-play");
+        StartPlayground(PlaygroundMode.Snacks);life.Playground.BeginAim(life.Habitat.PetCenter+new Vector(-130,-70));life.Playground.Pull(life.Habitat.PetCenter+new Vector(-200,-40));SyncPlayground();Capture((Control)playgroundWindow!.Content!,"snack-aim");
+        life.StopPlay();SyncPlayground();if(playgroundWindow!=null)throw new InvalidOperationException("Playground input overlay did not close");
         Hide();if(tray?.IsVisible!=true||pet.IsVisible)throw new InvalidOperationException("Hidden pet lost tray recall");Recall();if(!pet.IsVisible)throw new InvalidOperationException("Recall failed");
         Switch("kuromi");if(life.Data.CharacterId!="kuromi")throw new InvalidOperationException("Character switch failed");
     }

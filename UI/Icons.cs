@@ -9,6 +9,8 @@ namespace Momonga.UI;
 public static class Icons
 {
     private static readonly BitmapSource[] images = Load();
+    public static readonly string BubbleWandPath = Path.Combine(Path.GetTempPath(), "momonga-bubble-wand.cur");
+    public static readonly Cursor BubbleWand = CreateCursor(new BitmapImage(new Uri("pack://application:,,,/Assets/bubble-wand.png")), BubbleWandPath, 9, 9);
     private static readonly BitmapSource[] hands = Momonga.Animation.PetAnimator.LoadFrames("hand-cursors", "hand-cursors-frames", 4);
     public static readonly string FlickCursorPath = Path.Combine(Path.GetTempPath(), "momonga-flick.cur");
     public static readonly Cursor FlickCursor = CreateCursor(Momonga.Animation.PetAnimator.LoadFrames("flick-cursor", "flick-cursor-frames", 1)[0], FlickCursorPath, 22, 19);

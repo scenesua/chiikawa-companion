@@ -26,6 +26,7 @@ public sealed class LifeSimulation
     public HabitatManager Habitat { get; }
     public ShopService Shop { get; }
     private Point? destination;
+    private double beerToastAt = double.PositiveInfinity;
     public Rect? NavigationBounds { get; set; }
     public Size ActorSize { get; set; } = new(128, 136);
     public Point? Destination
@@ -45,9 +46,39 @@ public sealed class LifeSimulation
     public event Action<string>? ActionAnimation;
     public event Action<ItemDefinition>? Consumed;
     public bool Playing { get; private set; }
+    private double playStartedAt;
+    private bool PlaySatisfied => Data.Pet.Fun >= 95 && Data.SimulationSeconds-playStartedAt >= 60;
     public bool CursorPlaying { get; private set; }
-    public void StartPlay(bool cursor = false) { RefreshContext(Context.SuppressInterruptions); if (Brain.Force("Play", Context)) { Playing = true; CursorPlaying = cursor; if (cursor) { targetItem = null; Destination = userPoint + new Vector(-40,35); } } }
-    public void StopPlay() { Playing = CursorPlaying = false; Rest(5); Brain.Cooldowns["Play"] = Data.SimulationSeconds + 120; }
+    public BallGame Ball { get; } = new();
+    public PlaygroundGame Playground { get; } = new();
+    public void StartPlay(bool cursor = false)
+    {
+        RefreshContext(Context.SuppressInterruptions);
+        if (!Brain.Force("Play", Context)) return;
+        Ball.Cancel(); Playground.Stop(); Playing = true; CursorPlaying = cursor;
+        if (cursor) { targetItem = null; Destination = userPoint + new Vector(-40,35); }
+    }
+    public bool StartBallPlay()
+    {
+        if (!StartDesktopPlay()) return false;
+        Ball.Start(Habitat.PetCenter, ActorSize.Width / 128);
+        Playground.Start(PlaygroundMode.Ball, ActorSize.Width / 128, Habitat.PetCenter); return true;
+    }
+    public bool StartPlayground(PlaygroundMode mode)
+    {
+        if (mode == PlaygroundMode.Off || !StartDesktopPlay()) return false;
+        Playground.Start(mode, ActorSize.Width / 128, Habitat.PetCenter); Playground.CatchChance=Character.SnackCatchChance; return true;
+    }
+    private bool StartDesktopPlay()
+    {
+        RefreshContext(Context.SuppressInterruptions); Context.HasToy = true;
+        if (!Brain.Force("Play", Context)) return false;
+        Ball.Cancel(); Playground.Stop();
+        Playing = true; CursorPlaying = false;
+        resumeItem = targetItem = null; Destination = null;
+        return true;
+    }
+    public void StopPlay() { Ball.Cancel(); Playground.Stop(); Playing = CursorPlaying = false; Rest(5); Brain.Cooldowns["Play"] = Data.SimulationSeconds + 120; }
     private HabitatItem? targetItem;
     private HabitatItem? seatedBed;
     private HabitatItem? resumeItem;
@@ -75,9 +106,11 @@ public sealed class LifeSimulation
     {
         resumeItem = null;
         if (!Data.Items.Contains(item)) return false;
+        if (item.ItemId == "ball") return StartBallPlay();
         var action = item.ItemId == "food-bowl" ? "Eat" : item.ItemId == "water-bowl" ? "Drink" : Catalog[item.ItemId].Category == "Bed" ? "Sleep" : "Play";
         RefreshContext(Context.SuppressInterruptions);
         if (action == "Eat" && item.FoodQuantity == 0 || action == "Drink" && item.Water <= 0 || !Brain.Force(action, Context)) return false;
+        Ball.Cancel(); Playground.Stop();
         targetItem = item; Destination = FurnitureTarget(item); if (action == "Play") { Playing = true; CursorPlaying = false; } return true;
     }
     private bool completed;
@@ -89,6 +122,7 @@ public sealed class LifeSimulation
     public LifeSimulation(SaveData data, CharacterDefinition character, IReadOnlyDictionary<string, ItemDefinition> catalog)
     {
         Data = data; Character = character; Catalog = catalog;
+        data.Items.RemoveAll(item=>item.ItemId=="ball");
         Habitat = new HabitatManager(data, catalog, character);
         Shop = new ShopService(data, catalog);
         Context = new BehaviorContext { Pet = data.Pet, Character = character };
@@ -101,7 +135,7 @@ public sealed class LifeSimulation
     {
         Context.Now = Data.SimulationSeconds; Context.Quiet = Habitat.Quiet;
         Context.SuppressInterruptions = suppress; Context.HasFood = Habitat.Find("Food") != null;
-        Context.HasWater = Habitat.Find("Water") != null; Context.HasBed = Habitat.HasBed; Context.HasToy = Habitat.HasToy;
+        Context.HasWater = Habitat.Find("Water") != null; Context.HasBed = Habitat.HasBed; Context.HasToy = Habitat.HasToy || Ball.Active || Playground.Active;
         Context.OnCushion = seatedBed != null && Data.Items.Contains(seatedBed);
         Context.QuietSeconds = Data.QuietSeconds; Context.RecentSnackSeconds = Data.SimulationSeconds - Data.LastSnackTime;
         Context.RecentSnacks = Data.InteractionHistory.Count(i => i.Kind == "Snack" && Data.SimulationSeconds - i.Time < 1800);
@@ -111,6 +145,7 @@ public sealed class LifeSimulation
     {
         seconds = Math.Clamp(seconds, 0, 1);
         Data.SimulationSeconds += seconds; userPoint = user;
+        if (Data.SimulationSeconds >= beerToastAt) { beerToastAt = double.PositiveInfinity; Speech?.Invoke("Snack:beer", false); }
         RefreshContext(suppress);
         if (Playing && CursorPlaying) Destination = user + new Vector(-40,35);
         if (targetItem != null)
@@ -123,10 +158,10 @@ public sealed class LifeSimulation
         {
             Data.QuietSeconds += seconds;
             var minutes = seconds / 60;
-            if (Data.QuietSeconds > 600) Data.Pet.Social -= minutes * 0.5;
+            if (Data.QuietSeconds > 600) Data.Pet.Social -= minutes * .25;
             if (Data.QuietSeconds > 1800)
             {
-                Data.Pet.Fun -= minutes * (Habitat.HasToy ? 0.05 : 0.4);
+                Data.Pet.Fun -= minutes * (Habitat.HasToy ? .01 : .08);
                 Data.Pet.Stress += minutes * (Habitat.FavoriteBed ? 0.45 : Habitat.HasBed ? 0.6 : 0.9) * (Habitat.HasToy ? 0.5 : 1);
             }
             if (Data.Pet.Annoyance > 40) Data.Pet.Mood += minutes;
@@ -143,6 +178,29 @@ public sealed class LifeSimulation
             }
         }
         Data.Pet.Update(seconds);
+        if (Playground.Mode is PlaygroundMode.Bubbles or PlaygroundMode.Snacks)
+        {
+            var bonksBefore=Playground.Bonks;
+            var hits = Playground.Update(seconds, Habitat.PetCenter, ActorSize, suppress);
+            var treats = Playground.Mode == PlaygroundMode.Snacks;
+            Data.Pet.Fun += hits * (treats ? 1 : .4); Data.Pet.Mood += hits;
+            Data.Pet.Social += hits * .5;
+            if (treats && hits > 0) { Data.Pet.Hunger -= hits * 2; Consumed?.Invoke(Catalog["cookie"]); }
+            if(Playground.Bonks>bonksBefore) {Data.Pet.Annoyance+=2;ActionAnimation?.Invoke("SnackBonk");}
+            Data.Pet.Clamp(); Destination = Playground.Target;
+            if (!treats && Playground.Hits > 0 && PlaySatisfied || Data.Pet.Energy < 10 || !treats && Data.Pet.Hunger > 90) StopPlay();
+            return;
+        }
+        if (Ball.Active)
+        {
+            if (PlaySatisfied && Ball.Phase is BallPhase.Ready or BallPhase.Returning || Data.Pet.Hunger > 90 || Data.Pet.Energy < 10) Ball.Finish();
+            var reward = Ball.Update(seconds, Habitat.PetCenter, ActorSize, suppress);
+            Data.Pet.Fun += reward + (suppress || !Ball.Running ? 0 : seconds * .025);
+            Data.Pet.Social += reward * .5;
+            Data.Pet.Clamp(); Destination = Ball.Target;
+            if (!Ball.Active) StopPlay();
+            return;
+        }
         if (resumeItem != null && Data.SimulationSeconds >= resumeAt)
         {
             var item = resumeItem; resumeItem = null;
@@ -153,7 +211,7 @@ public sealed class LifeSimulation
             }
         }
         if (Brain.Current.Name == "Play") Playing = true;
-        if (Playing && (Brain.Current.Name != "Play" || Data.Pet.Fun >= 90 || Data.Pet.Hunger > 90 || Data.Pet.Energy < 10)) StopPlay();
+        if (Playing && (Brain.Current.Name != "Play" || PlaySatisfied || Data.Pet.Hunger > 90 || Data.Pet.Energy < 10)) StopPlay();
         if (!Playing) Brain.Update(Context, seconds);
         if (Brain.IsPaused(Data.SimulationSeconds)) return;
         var arrived = !Destination.HasValue || ((Vector)(Destination.Value - Habitat.PetCenter)).Length <= ReachRadius;
@@ -181,7 +239,8 @@ public sealed class LifeSimulation
                 pet.Energy += seconds * (targetItem?.ItemId == "beanbag" ? .55 : targetItem?.ItemId == "nest" ? .6 : .45);
                 pet.Stress -= seconds * (targetItem != null && Character.PreferredBeds.Contains(targetItem.ItemId) ? .05 : .025); break;
             case "Play" when arrived:
-                pet.Fun += seconds * (targetItem?.ItemId == "doll" ? .6 : .8) * (targetItem != null && Character.FavoriteToys.Contains(targetItem.ItemId) ? 1.25 : 1);
+                pet.Fun += seconds * (targetItem?.ItemId == "doll" ? .15 : .2) * (targetItem != null && Character.FavoriteToys.Contains(targetItem.ItemId) ? 1.25 : 1);
+                pet.Social += seconds * .04;
                 pet.Mood += seconds * .15; pet.Annoyance -= seconds * .08; break;
             case "Sulk" when arrived: pet.Annoyance -= seconds * 0.07; break;
         }
@@ -200,7 +259,8 @@ public sealed class LifeSimulation
 
     private void Start(UtilityBehavior behavior)
     {
-        if (behavior.Name != "Play") Playing = CursorPlaying = false;
+        if (behavior.Name == "Play") playStartedAt = Data.SimulationSeconds;
+        if (behavior.Name != "Play") { Ball.Cancel(); Playground.Stop(); Playing = CursorPlaying = false; }
         completed = false; requests = 0; atTargetSeconds = 0; targetItem = null; Destination = null;
         var kind = behavior.Name switch
         { "Eat" => "Food", "Drink" => "Water", "Sleep" or "Sulk" or "Hide" => "Bed", "Play" => "Toy", "QuietProtest" => "Sign", _ => "" };
@@ -231,14 +291,18 @@ public sealed class LifeSimulation
     {
         if (!Catalog.TryGetValue(id, out var item) || item.Category is not ("Snack" or "Drink") || !Shop.Consume(id)) return false;
         var p = Data.Pet; var favorite = Character.ItemPreferences.GetValueOrDefault(id, Character.FavoriteSnacks.Contains(id) ? 1.2 : 1);
-        p.Thirst -= item.Thirst; p.Hunger -= item.Hunger; p.Mood += item.Mood * favorite; p.Fun += item.Fun * favorite;
+        var beer = Character.CharacterId == "kurimanju" && id == "beer";
+        p.Thirst -= item.Thirst; p.Hunger -= item.Hunger; p.Mood += item.Mood * favorite; p.Fun += beer ? 70 : item.Fun * favorite;
+        if (beer) p.Energy += 65;
         p.Affection += item.Affection * Character.RelationshipModifiers.GetValueOrDefault("Snack", 1);
         p.Trust += 0.1;
         p.Annoyance -= 15; p.Stress -= 4; p.Social += 5; p.Clamp();
         Data.LastSnackTime = Data.SimulationSeconds;
         Brain.Cooldowns["AskSnack"] = Data.SimulationSeconds + 360;
-        Destination = null; Brain.Force("Idle", Context); Brain.Pause(Data.SimulationSeconds, 3);
-        Reaction?.Invoke(PetPose.Happy); Speech?.Invoke("Snack:" + item.Id, false); Record("Snack"); Consumed?.Invoke(item); return true;
+        Destination = null; Brain.Force("Idle", Context); Brain.Pause(Data.SimulationSeconds, beer ? 4 : 3);
+        beerToastAt = beer ? Data.SimulationSeconds + 1.5 : double.PositiveInfinity;
+        Reaction?.Invoke(PetPose.Happy); if (!beer) Speech?.Invoke("Snack:" + item.Id, false);
+        Record("Snack"); Consumed?.Invoke(item); return true;
     }
 
     public void Interact(string kind)
@@ -252,7 +316,7 @@ public sealed class LifeSimulation
         {
             p.Social += 8; p.Mood += 5; p.Annoyance -= kind == "Pet" ? 8 : 5; p.Stress -= 2;
             p.Affection += 0.2 * Character.RelationshipModifiers.GetValueOrDefault("Pet", 1); p.Trust += 0.1;
-            if (kind == "Play") p.Fun += 12;
+            if (kind == "Play") p.Fun += 3;
         }
         else
         {

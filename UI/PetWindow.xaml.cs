@@ -24,19 +24,22 @@ public partial class PetWindow : Window
     private bool pokeArmed;
     private bool cheekArmed;
     private string strokeArmed = "";
-    private double cheekPull;
-    private double cheekReleasedAt, cheekReleasedPull;
-    public int CheekExpression => cheekPull < Width*.08 ? 4 : cheekPull < Width*.18 ? 5 : 6;
+    private readonly CheekDrag cheekDrag = new();
+    private readonly CheekSurface cheekSurface = new();
+    private Window? cheekWindow;
+    public int CheekExpression => cheekDrag.Expression(elapsed);
+    internal Window? CheekOverlay => cheekWindow;
     private int? actionFrame;
     private double actionUntil;
     private int? foodFrame;
     private double foodUntil;
+    private bool drinkingBeer;
     private DateTime armedUntil;
     private double lastStroke;
     private bool externalDrag;
     public bool IsDragging { get; private set; }
     public bool IsReacting => animator.IsReacting(elapsed);
-    public bool IsInteracting => IsMouseCaptured || externalDrag;
+    public bool IsInteracting => IsMouseCaptured || externalDrag || cheekDrag.Active(elapsed);
     public void BeginExternalDrag() { externalDrag = IsDragging = true; ShowComposite(false); }
     public void EndExternalDrag() { externalDrag = IsDragging = false; DragFinished?.Invoke(); }
     public ImageSource? Portrait => Sprite.Source;
@@ -58,7 +61,7 @@ public partial class PetWindow : Window
         PreviewMouseRightButtonUp += (_, e) => { RadialRequested?.Invoke(); e.Handled = true; };
         ToolTipService.SetIsEnabled(this, false);
         Render(new Vector(), null, 0);
-        PreviewKeyDown += (_, e) => { if (e.Key == Key.Escape) CancelArmed(); };
+        PreviewKeyDown += (_, e) => { if (e.Key == Key.Escape) { if (IsMouseCaptured) ReleaseMouseCapture(); CancelArmed(); } };
         SourceInitialized += (_, _) => Momonga.Platform.WindowPolicy.Passive(this, false);
     }
 
@@ -69,32 +72,70 @@ public partial class PetWindow : Window
         var centeredCursor = cursor.HasValue
             ? new Point(cursor.Value.X - Width / 2 + 64, cursor.Value.Y - Height / 2 + 68)
             : (Point?)null;
-        var releasedPull = cheekReleasedPull * Math.Exp(-Math.Max(0, now - cheekReleasedAt) * 18);
-        if (cheek && IsMouseCaptured || releasedPull > .1)
+        cheekDrag.Update(now);
+        if (cheekDrag.Active(now))
         {
-            var pull = IsMouseCaptured ? cheekPull : releasedPull;
-            CheekMesh.Source = ActionSprites.Frame(pull < Width*.08 ? 4 : pull < Width*.18 ? 5 : 6);
-            CheekMesh.LeftCheek = region == HitRegion.LeftCheek; CheekMesh.Pull = pull;
-            CheekMesh.Visibility = Visibility.Visible; Sprite.Visibility = Visibility.Hidden; CheekMesh.InvalidateVisual(); return;
+            cheekSurface.Source = ActionSprites.CheekFrame(cheekDrag.Expression(now)); cheekSurface.Drag = cheekDrag;
+            cheekWindow ??= CreateCheekWindow();
+            cheekWindow.Width = Width * 2; cheekWindow.Height = Height * 2;
+            cheekWindow.Left = Left - Width / 2; cheekWindow.Top = Top - Height / 2;
+            if (!cheekWindow.IsVisible) cheekWindow.Show();
+            Momonga.Platform.WindowPolicy.Top(cheekWindow);
+            Sprite.Visibility = Visibility.Hidden; cheekSurface.InvalidateVisual(); return;
         }
-        CheekMesh.Visibility = Visibility.Collapsed; Sprite.Visibility = Visibility.Visible;
-        Sprite.Source = foodFrame.HasValue && now < foodUntil ? FoodSprites.Frame(foodFrame.Value + (int)(now/.35)%2)
+        cheekWindow?.Hide(); Sprite.Visibility = Visibility.Visible;
+        Sprite.Chewing=foodFrame.HasValue&&now<foodUntil&&!drinkingBeer;
+        Sprite.Sipping=foodFrame.HasValue&&now<foodUntil&&drinkingBeer;
+        Sprite.MotionTime=now*.8/.7;
+        Sprite.Source = foodFrame.HasValue && now < foodUntil ? drinkingBeer ? FoodSprites.Beer(4-(foodUntil-now)) : FoodSprites.Frame(foodFrame.Value + (int)(now/.35)%2)
             : actionFrame.HasValue && now < actionUntil ? ActionSprites.Frame(actionFrame.Value)
-            : lifePose == PetPose.Play ? ActionSprites.Frame(8 + (int)(now/.3)%2)
             : flickReaction && animator.IsReacting(now)
             ? InteractionSprites.Frame(now - flickAt < 0.18 ? 14 : 15)
+            : lifePose == PetPose.Play ? ActionSprites.Frame(8 + (int)(now/.3)%2)
             : animator.Frame(movement, centeredCursor, IsDragging, now, activity, lifePose);
+        if(Sprite.Chewing||Sprite.Sipping)Sprite.InvalidateVisual();
     }
 
     public void ArmStroke(bool chin) { CancelArmed(); strokeArmed = chin ? "Chin" : "Pet"; armedUntil = DateTime.UtcNow.AddSeconds(30); Mouse.OverrideCursor = Icons.HandCursor(chin ? 1 : 0); Momonga.Platform.ToolCursor.Show(Icons.HandCursorPath(chin ? 1 : 0)); }
-    public void AnimateAction(string kind) { actionFrame = kind switch { "Pet" => 1, "Chin" => 2, "Praise" => 3, "Soothe" => 7, "Poke" => 10, _ => null }; actionUntil = elapsed + 2; }
-    public void AnimateFood(Momonga.Inventory.ItemDefinition food) { foodFrame = food.AnimationFrame; foodUntil = elapsed + 3; }
+    public void AnimateAction(string kind)
+    {
+        if(kind=="SnackBonk") {foodFrame=actionFrame=null;flickReaction=true;flickAt=elapsed;animator.React(PetPose.Startled,elapsed,.6);return;}
+        actionFrame = kind switch { "Pet" => 1, "Chin" => 2, "Praise" => 3, "Soothe" => 7, "Poke" => 10, _ => null }; actionUntil = elapsed + 2;
+    }
+
+    private Window CreateCheekWindow()
+    {
+        var window = new Window { Owner = this, Content = cheekSurface, WindowStyle = WindowStyle.None, AllowsTransparency = true,
+            Background = Brushes.Transparent, ShowActivated = false, ShowInTaskbar = false, Topmost = true, ResizeMode = ResizeMode.NoResize };
+        window.SourceInitialized += (_, _) => Momonga.Platform.WindowPolicy.Passive(window, true);
+        IsVisibleChanged += (_, _) => { if (!IsVisible) window.Hide(); };
+        return window;
+    }
+    public void AnimateFood(Momonga.Inventory.ItemDefinition food) { foodFrame = food.AnimationFrame; drinkingBeer = CharacterSprites.Current == "kurimanju" && food.Id == "beer"; foodUntil = elapsed + (drinkingBeer ? 4 : 3); }
     private double flickAt;
     public void React(PetPose pose) { flickReaction = false; animator.React(pose, elapsed); }
     public void ArmFlick() { CancelArmed(); flickArmed = true; armedUntil = DateTime.UtcNow.AddSeconds(30); Mouse.OverrideCursor = Icons.FlickCursor; Momonga.Platform.ToolCursor.Show(Icons.FlickCursorPath); }
     public void ArmPoke() { CancelArmed(); pokeArmed = true; armedUntil = DateTime.UtcNow.AddSeconds(30); Mouse.OverrideCursor = Icons.PokeCursor; Momonga.Platform.ToolCursor.Show(Icons.PokeCursorPath); }
     public void ArmCheek() { CancelArmed(); cheekArmed = true; armedUntil = DateTime.UtcNow.AddSeconds(30); Mouse.OverrideCursor = Icons.HandCursor(2); Momonga.Platform.ToolCursor.Show(Icons.HandCursorPath(2)); }
     public void CancelArmed() { flickArmed = pokeArmed = cheekArmed = false; strokeArmed = ""; Mouse.OverrideCursor = null; Momonga.Platform.ToolCursor.Restore(); }
+    public void RenderBall(BallGame ball, Vector movement, double now)
+    {
+        if (IsInteracting || IsReacting) return;
+        Sprite.Source = ball.Phase == BallPhase.Hiding ? animator.Frame(new Vector(0,-1), null, false, 0)
+            : ball.Running && movement.Length > .01 ? animator.Frame(movement, null, false, now * 1.8)
+            : ActionSprites.Frame(8 + (int)(now / .22) % 2);
+    }
+    public void RenderPlayground(PlaygroundGame game, Vector movement, Point center, double now)
+    {
+        if(IsInteracting || IsReacting)return;
+        if(game.Mode==PlaygroundMode.Bubbles) Sprite.Source=movement.Length>.01 ? animator.Frame(movement,null,false,now*1.8) : ActionSprites.Frame(8+(int)(now/.22)%2);
+        else if(game.Deadpan) Sprite.Source=animator.FaceFront(PetPose.Annoyed,now);
+        else if(game.WatchTarget is Point target && movement.Length<.01)
+        {
+            var direction=target-center;
+            if(direction.Length>.01)Sprite.Source=animator.Frame(new Vector(),new Point(64,68)+direction*(150/direction.Length),false,now);
+        }
+    }
     public bool ApplyArmed()
     {
         if (!HasArmedInteraction) return false;
@@ -165,23 +206,21 @@ public partial class PetWindow : Window
     public bool BeginSceneGesture(Point normalized, Point screen)
     {
         var local = new Point(normalized.X*Width,normalized.Y*Height);
-        var hit = PetInteractionDetector.Region(local,Width,Height);
+        var hit = PetInteractionDetector.Region(local,Width,Height,CharacterLayers.Pose(Sprite.Source)?.Facing??-1);
         if (!HasArmedInteraction && (!DirectTouch() || hit is not (HitRegion.Head or HitRegion.Chin or HitRegion.LeftCheek or HitRegion.RightCheek))) return false;
         ShowComposite(false); StartGesture(local,screen); return true;
     }
     private void StartGesture(Point local, Point screen)
     {
-        region = PetInteractionDetector.Region(local, Width, Height);
+        region = PetInteractionDetector.Region(local,Width,Height,CharacterLayers.Pose(Sprite.Source)?.Facing??-1);
         var pullArmed = cheekArmed;
         if (cheekArmed) { if (region is not (HitRegion.LeftCheek or HitRegion.RightCheek)) return; cheekArmed = false; }
         pressPoint = lastPointer = screen;
         stroking = (DirectTouch() || strokeArmed != "") && region is HitRegion.Head or HitRegion.Chin;
         if (strokeArmed != "" && (strokeArmed == "Pet" ? region != HitRegion.Head : region != HitRegion.Chin)) return;
         if (stroking) { strokeArmed = region == HitRegion.Chin ? "Chin" : "Pet"; Mouse.OverrideCursor = Icons.HandCursor(region == HitRegion.Chin ? 1 : 0); }
-        cheekPull = 0;
-        cheekReleasedPull = 0;
         cheek = !stroking && (DirectTouch() || pullArmed) && region is HitRegion.LeftCheek or HitRegion.RightCheek;
-        if (cheek) Mouse.OverrideCursor = Icons.HandCursor(2);
+        if (cheek) { cheekDrag.Begin(new Point(local.X / Width, local.Y / Height), region == HitRegion.LeftCheek); Mouse.OverrideCursor = Icons.HandCursor(2); }
         moved = false; CaptureMouse();
     }
 
@@ -205,8 +244,7 @@ public partial class PetWindow : Window
         else if (cheek)
         {
             var offset = source?.CompositionTarget?.TransformFromDevice.Transform(current - pressPoint) ?? current - pressPoint;
-            var outward = region == HitRegion.LeftCheek ? -offset.X : offset.X;
-            cheekPull = Math.Clamp(outward, 0, Width * .25);
+            cheekDrag.Move(new Vector(offset.X / Width, offset.Y / Height));
             Mouse.OverrideCursor = Icons.HandCursor(2);
         }
         else if (moved)
@@ -217,9 +255,9 @@ public partial class PetWindow : Window
     private void EndDrag(object sender, MouseButtonEventArgs e) => ReleaseMouseCapture();
     private void LostDrag(object sender, MouseEventArgs e)
     {
-        if (cheek) { cheekReleasedPull = cheekPull; cheekReleasedAt = elapsed; }
+        if (cheek) cheekDrag.Release(elapsed);
         Sprite.RenderTransform = Transform.Identity;
-        CheekMesh.Visibility = Visibility.Collapsed; Sprite.Visibility = Visibility.Visible; CancelArmed();
+        CancelArmed();
         if (!IsDragging)
         {
             if (cheek && moved) InteractionRequested?.Invoke("CheekPull");

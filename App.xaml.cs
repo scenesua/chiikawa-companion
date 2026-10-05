@@ -20,7 +20,7 @@ public partial class App : Application
         base.OnStartup(e);
         if (Array.IndexOf(e.Args, "--self-test") >= 0)
         {
-            try { UI.Theme.Apply(Character.CharacterDefinition.Load().Theme); Simulation.MotionChecks.Run(); Animation.PetAnimator.RunChecks(); UI.PetWindow.RunSizeChecks(); Simulation.LifeChecks.Run(); Shutdown(0); }
+            try { UI.Theme.Apply(Character.CharacterDefinition.Load().Theme); Simulation.MotionChecks.Run(); Animation.PetAnimator.RunChecks(); UI.PetWindow.RunSizeChecks(); Simulation.LifeChecks.Run(); UI.CharacterLayers.RunChecks(); Shutdown(0); }
             catch (Exception error)
             {
                 System.IO.File.WriteAllText("self-test-error.txt", error.ToString());

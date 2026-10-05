@@ -24,6 +24,7 @@ public sealed class ShopService(SaveData data, IReadOnlyDictionary<string, ItemD
     }
     public HabitatItem? Place(string id)
     {
+        if (id == "ball") return null;
         if (!catalog.TryGetValue(id, out var item) || item.Consumable || AvailableFurniture(id) <= 0 || data.Items.Count >= 30) return null;
         var placed = new HabitatItem { ItemId = id, ZoneId = data.Zone.Id, MonitorId = data.Zone.MonitorId,
             X = data.PetX + data.Items.Count % 4 * 90, Y = data.PetY + 100 };

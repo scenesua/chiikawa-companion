@@ -3,49 +3,22 @@ namespace Momonga.Animation;
 public static class ActionSprites
 {
     private static readonly BitmapSource[] frames = PetAnimator.LoadFrames("momonga-affection", "momonga-affection-frames", 12);
-    private static readonly System.Windows.Media.ImageSource[] expressions = Build();
-    private static System.Windows.Media.ImageSource[] Build()
+    public static System.Windows.Media.ImageSource CheekFrame(int index)
     {
-        var result = new System.Windows.Media.ImageSource[12];
-        for (var i = 0; i < 12; i++)
-        {
-            if (i is 0 or 8 or 9) { result[i] = frames[i]; continue; }
-            var group = new System.Windows.Media.DrawingGroup();
-            using (var dc = group.Open())
-            {
-                var rect = new System.Windows.Rect(0,0,frames[0].Width,frames[0].Height);
-                dc.DrawImage(frames[0],rect);
-                dc.PushClip(new System.Windows.Media.EllipseGeometry(new System.Windows.Rect(rect.Width*.15,rect.Height*.29,rect.Width*.70,rect.Height*.42)));
-                dc.DrawImage(frames[i],rect); dc.Pop();
-            }
-            var image = new System.Windows.Media.DrawingImage(group); image.Freeze(); result[i] = image;
-        }
-        return result;
+        // Import one coherent pose into layers. Mixing independently drawn poses
+        // leaves unmatched strokes even when their direction labels agree.
+        _=UI.CharacterLayers.Model(Frame(0));
+        var donor=CharacterSprites.Current=="ode"?index switch {4=>0,5=>1,6=>7,_=>index}:CharacterSprites.Current is "mymelody" or "kuromi"?index switch {4=>0,5=>6,_=>index}:index;
+        return UI.CharacterLayers.Expression(Frame(0),Frame(donor));
     }
-    private static readonly System.Collections.Generic.Dictionary<string, System.Windows.Media.ImageSource[]> characterExpressions = new();
     public static System.Windows.Media.ImageSource Frame(int index)
     {
-        if (CharacterSprites.Current == "momonga") return expressions[index];
-        if (!characterExpressions.TryGetValue(CharacterSprites.Current, out var result))
-        {
-            result = new System.Windows.Media.ImageSource[12];
-            for (var i = 0; i < result.Length; i++)
-            {
-                if (i is 0 or 8 or 9) { result[i] = CharacterSprites.Frame(44 + i); continue; }
-                var group = new System.Windows.Media.DrawingGroup();
-                using (var dc = group.Open())
-                {
-                    var rect = new System.Windows.Rect(0, 0, 240, 240);
-                    dc.DrawImage(CharacterSprites.Frame(44), rect);
-                    dc.PushClip(new System.Windows.Media.EllipseGeometry(new System.Windows.Rect(240 * .16, 240 * (CharacterSprites.FaceY - .17), 240 * .68, 240 * .36)));
-                    dc.DrawImage(CharacterSprites.Frame(44 + i), rect); dc.Pop();
-                }
-                var image = new System.Windows.Media.DrawingImage(group); image.Freeze(); result[i] = image;
-            }
-            characterExpressions[CharacterSprites.Current] = result;
-        }
-        return result[index];
+        var id=CharacterSprites.Current;
+        var source=id=="momonga"?(System.Windows.Media.ImageSource)frames[index]:CharacterSprites.Frame(44+index);
+        UI.CharacterLayers.Register(source,id,"affection",index,2);
+        return source;
     }
+
 }
 public static class BowlContents
 {
@@ -81,6 +54,12 @@ public static class FurnitureSprites
 }
 public static class FoodSprites
 {
+    private static readonly BitmapSource[] beer = PetAnimator.LoadFrames("kurimanju-beer", "kurimanju-beer-frames", 4);
+    public static BitmapSource Beer(double seconds)
+    {
+        var index=seconds<.4?0:seconds<1.5?1:seconds<2.8?2:3;
+        UI.CharacterLayers.Register(beer[index],"kurimanju","beer",index,2);return beer[index];
+    }
     private static readonly BitmapSource[] frames = PetAnimator.LoadFrames("momonga-food-actions", "momonga-food-actions-frames", 12);
     private static readonly System.Collections.Generic.Dictionary<string,BitmapSource[]> snacks = new();
     public static BitmapSource Frame(int index)
@@ -100,8 +79,9 @@ public static class FoodSprites
                 }));
                 snacks[id]=result;
             }
-            return result[index];
+            UI.CharacterLayers.Register(result[index],id,"snack",index,2);return result[index];
         }
-        return id == "momonga" ? frames[index] : CharacterSprites.Frame(64 + index);
+        var source=id=="momonga"?frames[index]:CharacterSprites.Frame(64+index);
+        UI.CharacterLayers.Register(source,id,"snack",index,2);return source;
     }
 }

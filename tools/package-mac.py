@@ -1,6 +1,6 @@
 """Check a cross-signed Mac bundle and ZIP it with Unix executable permissions.
 
-Usage: python tools/package-mac.py Apple-Silicon|Intel /path/to/rcodesign
+Usage: python tools/package-mac.py Apple-Silicon|Intel /path/to/rcodesign [release-directory]
 These static checks do not replace macOS codesign/Gatekeeper or execution tests.
 """
 import plistlib
@@ -13,10 +13,11 @@ import zipfile
 from pathlib import Path
 
 root = Path(__file__).resolve().parents[1]
-arch, signer = sys.argv[1:]
+arch, signer = sys.argv[1:3]
 assert arch in ("Apple-Silicon", "Intel")
 version = re.search(r"<Version>(.*?)</Version>", (root / "Directory.Build.props").read_text()).group(1)
-bundle = root / "release" / ("v" + version) / ("macOS-" + arch) / "Chiikawa Companion.app"
+release = Path(sys.argv[3]).resolve() if len(sys.argv)>3 else root / "release" / ("v" + version)
+bundle = release / ("macOS-" + arch) / "Chiikawa Companion.app"
 contents = bundle / "Contents"
 info = plistlib.loads((contents / "Info.plist").read_bytes())
 assert info["CFBundleShortVersionString"] == version

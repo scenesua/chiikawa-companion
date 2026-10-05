@@ -12,6 +12,7 @@
   "Patience": 0.4,
   "FoodLove": 0.78,
   "SnackLove": 0.94,
+  "SnackCatchChance": 0.9,
   "Sleepiness": 0.4,
   "FavoriteFoods": [
     "furikake-rice"

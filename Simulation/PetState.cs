@@ -30,7 +30,7 @@ public sealed class PetState
     {
         var minutes = seconds / 60;
         Hunger += minutes * .2; Thirst += minutes * 2.5; Energy -= minutes * 0.8;
-        Social -= minutes * 1.2; Fun -= minutes;
+        Social -= minutes * .6; Fun -= minutes * .2;
         Annoyance -= minutes * 3; Stress -= minutes * 0.3;
         Mood += Math.Sign(65 - Mood) * Math.Min(Math.Abs(65 - Mood), minutes * 0.5);
         Clamp();
@@ -41,8 +41,8 @@ public sealed class PetState
         var hours = Math.Clamp(elapsed.TotalHours, 0, 2);
         Hunger += hours * 7.5; Thirst += hours * 8;
         Energy = Math.Max(Math.Min(Energy, 35), Energy - hours * 5);
-        Social = Math.Max(Math.Min(Social, 30), Social - hours * 6);
-        Fun = Math.Max(Math.Min(Fun, 30), Fun - hours * 5);
+        Social -= hours * 3;
+        Fun -= hours * 3;
         Annoyance = Math.Max(0, Annoyance - hours * 6);
         Clamp();
     }

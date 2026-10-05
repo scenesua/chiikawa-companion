@@ -12,6 +12,7 @@
   "Patience": 0.85,
   "FoodLove": 0.78,
   "SnackLove": 0.94,
+  "SnackCatchChance": 0.85,
   "Sleepiness": 0.4,
   "FavoriteFoods": [
     "jiro-ramen"

@@ -11,10 +11,13 @@ public enum PetPose { Happy, Eat, Sleep, Annoyed, Sulk, Startled, Dragged, Play 
 public static class CharacterSprites
 {
     public static string Current { get; set; } = "momonga";
-    public static double FaceY => Current switch { "usagi" => .62, "mymelody" or "kuromi" => .60, "ode" => .25, "anoko" => .43, _ => .55 };
+    public static double FaceY => Current switch { "usagi" => .62, "mymelody" or "kuromi" => .60, "ode" => .25, "anoko" => .43, "dekatsuyo" or "kurimanju" => .48, "rilakkuma" or "korilakkuma" => .46, _ => .55 };
 }
 
-public sealed record Sprite(Bitmap Atlas, Rect Crop, Rect Draw, int[][] Cuts);
+public sealed record Sprite(Bitmap Atlas, Rect Crop, Rect Draw, int[][] Cuts)
+{
+    public Momonga.Character.CharacterPose? Pose { get; init; }
+}
 public static class Sprites
 {
     private static readonly Dictionary<string, Sprite[]> cache = new();
@@ -30,7 +33,13 @@ public static class Sprites
         using var stream=AssetLoader.Open(new Uri("avares://Chiikawa.Companion/Assets/sprite-exclusions.json"));
         return JsonSerializer.Deserialize<Dictionary<string,int[][][]>>(stream)!;
     }
-    public static void Draw(DrawingContext context,Sprite sprite,Rect draw)
+    public static Sprite Character(Sprite sprite,string id,string clip="unregistered",int frame=0,int facing=-1) => sprite.Pose!=null&&clip=="unregistered" ? sprite : sprite with {Pose=new Momonga.Character.CharacterPose(id,clip,frame,facing)};
+    public static void Draw(DrawingContext context,Sprite sprite,Rect draw,double? time=null)
+    {
+        if(sprite.Pose!=null){CharacterLayers.Draw(context,sprite,draw,chewing:sprite.Pose.Clip is "meal" or "snack",time:time);return;}
+        DrawRaw(context,sprite,draw);
+    }
+    internal static void DrawRaw(DrawingContext context,Sprite sprite,Rect draw)
     {
         if(sprite.Cuts.Length==0){context.DrawImage(sprite.Atlas,sprite.Crop,draw);return;}
         var clip=new GeometryGroup {FillRule=FillRule.EvenOdd};clip.Children.Add(new RectangleGeometry(draw));
@@ -56,21 +65,22 @@ public static class Sprites
             }
         return cache[key]=result;
     }
-    public static Sprite Frame(string id,int index) => id=="momonga" ? Load("momonga-sprites","momonga-frames")[index] : Load(id+"-atlas",id+"-atlas-frames")[index];
-    public static Sprite Idle(string id,int index) => id=="momonga" ? Load("momonga-idle","momonga-idle-frames")[index] : Frame(id,32+index);
-    public static Sprite Actor(string id,int index) => id=="momonga" ? Load("momonga-scene-actors","momonga-scene-actor-frames")[index] : Frame(id,56+index);
+    public static Sprite Frame(string id,int index) => Character(id=="momonga" ? Load("momonga-sprites","momonga-frames")[index] : Load(id+"-atlas",id+"-atlas-frames")[index],id,"atlas",index,index<24?index%8:index is >=44 and <56?2:-1);
+    public static Sprite Idle(string id,int index) => Character(id=="momonga" ? Load("momonga-idle","momonga-idle-frames")[index] : Frame(id,32+index),id,"idle",index,index is 0 or 1?2:-1);
+    public static Sprite Actor(string id,int index) => Character(id=="momonga" ? Load("momonga-scene-actors","momonga-scene-actor-frames")[index] : Frame(id,56+index),id,"scene",index,-1);
     private static readonly string[] drinkIds={"chiikawa","hachiware","usagi","kurimanju","shisa","kani","rakko","anoko","goblin","chiikabu","ode","rilakkuma","korilakkuma","mymelody","kuromi","dekatsuyo"};
     public static Sprite Drink(string id,int beat)
     {
-        if(id=="momonga") return Actor(id,6+beat);
-        var i=Array.IndexOf(drinkIds,id); return Load("drinking-"+i/4,"drinking-"+i/4+"-frames")[i%4*2+beat];
+        if(id=="momonga") return Character(Actor(id,6+beat),id,"drink",beat,2);
+        var i=Array.IndexOf(drinkIds,id); return Character(Load("drinking-"+i/4,"drinking-"+i/4+"-frames")[i%4*2+beat],id,"drink",beat,2);
     }
     public static Sprite Meal(string id,string food,int beat)
     {
         var i=food switch {"furikake-rice"=>2,"curry-rice"=>4,"jiro-ramen"=>6,"nuts"=>8,"fruit"=>10,_=>0};
-        return Load(id+"-meals",id+"-meal-frames")[i+beat];
+        return Character(Load(id+"-meals",id+"-meal-frames")[i+beat],id,"meal",i+beat,2);
     }
-    public static Sprite Snack(string id,int index) => id is "mymelody" or "kuromi" ? Load(id+"-meals",id+"-snack-frames")[index] : id=="momonga" ? Load("momonga-food-actions","momonga-food-actions-frames")[index] : Frame(id,64+index);
+    public static Sprite Snack(string id,int index) => Character(id is "mymelody" or "kuromi" ? Load(id+"-meals",id+"-snack-frames")[index] : id=="momonga" ? Load("momonga-food-actions","momonga-food-actions-frames")[index] : Frame(id,64+index),id,"snack",index,2);
+    public static Sprite Beer(double seconds) => Character(Load("kurimanju-beer","kurimanju-beer-frames",false)[seconds<.4?0:seconds<1.5?1:seconds<2.8?2:3],"kurimanju","beer",0,2);
     public static Sprite Furniture(string id) => id switch
     {
         "ball"=>Load("furniture-variants","furniture-variants-frames",false)[0],
@@ -89,21 +99,57 @@ public static class Sprites
 
 public sealed class SpriteView : Control
 {
+    public double? MotionTime;
     private Sprite? sprite;
     public Sprite? Sprite { get=>sprite; set { sprite=value; InvalidateVisual(); } }
-    public double CheekPull { get; set; }
-    public bool LeftCheek { get; set; }
     public override void Render(DrawingContext context)
     {
         base.Render(context); if(sprite==null) return;
         var scale=Bounds.Width/240;
         var draw=new Rect(sprite.Draw.X*scale,sprite.Draw.Y*scale,sprite.Draw.Width*scale,sprite.Draw.Height*scale);
-        if(CheekPull<=0) { Sprites.Draw(context,sprite,draw); return; }
-        var cheek=new Rect(Bounds.Width*(LeftCheek?.24:.60),Bounds.Height*(CharacterSprites.FaceY-.08),Bounds.Width*.17,Bounds.Height*.16);
-        // Only the grabbed cheek stretches; the rest of the sprite keeps its original geometry.
-        foreach(var region in new[]{new Rect(0,0,Bounds.Width,cheek.Top),new Rect(0,cheek.Bottom,Bounds.Width,Math.Max(0,Bounds.Height-cheek.Bottom)),new Rect(0,cheek.Top,cheek.Left,cheek.Height),new Rect(cheek.Right,cheek.Top,Math.Max(0,Bounds.Width-cheek.Right),cheek.Height)})
-            using(context.PushClip(region)) Sprites.Draw(context,sprite,draw);
-        using(context.PushClip(new Rect(LeftCheek?cheek.Left-CheekPull:cheek.Left,cheek.Top,cheek.Width+CheekPull,cheek.Height)))
-        using(context.PushTransform(Matrix.CreateTranslation(-cheek.Left,0)*Matrix.CreateScale(1+CheekPull/cheek.Width,1)*Matrix.CreateTranslation(cheek.Left-(LeftCheek?CheekPull:0),0))) Sprites.Draw(context,sprite,draw);
+        Sprites.Draw(context,Sprites.Character(sprite,CharacterSprites.Current),draw,MotionTime);
     }
+}
+
+public sealed class CheekView : Control, IDisposable
+{
+    public Momonga.Input.CheekDrag Drag { get; set; } = new();
+    public double Now { get; set; }
+    private string cachedKey="";
+    private byte[] pixels=Array.Empty<byte>();
+    private Momonga.Character.LayeredFrame? model;
+    private WriteableBitmap? output;
+    public override void Render(DrawingContext context)
+    {
+        const int w=240,h=240;
+        if(Bounds.Width<=0||Bounds.Height<=0)return;
+        var id=CharacterSprites.Current;var expression=Drag.Expression(Now);var key=$"{id}:{expression}";
+        if(key!=cachedKey)
+        {
+            cachedKey=key;Sprite body,face;
+            if(id=="momonga")
+            {
+                var frames=Sprites.Load("momonga-affection","momonga-affection-frames",false);
+                Sprite Center(Sprite sprite)
+                {
+                    var scale=240/Math.Max(sprite.Crop.Width,sprite.Crop.Height);var width=sprite.Crop.Width*scale;var height=sprite.Crop.Height*scale;
+                    return sprite with {Draw=new Rect((240-width)/2,(240-height)/2,width,height)};
+                }
+                body=Sprites.Character(Center(frames[0]),id,"affection",0,2);
+                face=Sprites.Character(Center(frames[expression]),id,"affection",expression,2);
+            }
+            else
+            {
+                var frame=id=="ode"?expression switch {4=>0,5=>1,6=>7,_=>expression}:id is "mymelody" or "kuromi"?expression switch {4=>0,5=>6,_=>expression}:expression;
+                body=Sprites.Character(Sprites.Frame(id,44),id,"affection",0,2);
+                face=Sprites.Character(Sprites.Frame(id,44+frame),id,"affection",frame,2);
+            }
+            model=CharacterLayers.ExpressionModel(body,face);pixels=model.Compose();
+        }
+        if(output?.PixelSize!=new PixelSize(w*2,h*2)){output?.Dispose();output=new WriteableBitmap(new PixelSize(w*2,h*2),new Vector(96,96),PixelFormat.Bgra8888,AlphaFormat.Premul);}
+        var warped=Drag.Warp(pixels,w,h,model);
+        using(var locked=output.Lock())for(var y=0;y<h*2;y++)System.Runtime.InteropServices.Marshal.Copy(warped,y*w*8,locked.Address+y*locked.RowBytes,w*8);
+        context.DrawImage(output,new Rect(0,0,Bounds.Width,Bounds.Height));
+    }
+    public void Dispose()=>output?.Dispose();
 }

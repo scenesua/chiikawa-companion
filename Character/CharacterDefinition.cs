@@ -24,6 +24,7 @@ public sealed record CharacterDefinition
     public double Patience { get; init; } = 0.38;
     public double FoodLove { get; init; } = 0.78;
     public double SnackLove { get; init; } = 0.94;
+    public double SnackCatchChance { get; init; } = 0.85;
     public ThemeDefinition Theme { get; init; } = new();
     public string[] FavoriteFoods { get; init; } = { "nuts" };
     public string[] FavoriteSnacks { get; init; } = { "dessert", "special-snack" };
@@ -39,7 +40,7 @@ public sealed record CharacterDefinition
             if (string.IsNullOrWhiteSpace(id) || id.Length > 64 || !System.Linq.Enumerable.All(id, c => char.IsAsciiLetterOrDigit(c) || c == '-'))
                 throw new InvalidOperationException("Invalid character content identifier");
         if (Theme == null || string.IsNullOrWhiteSpace(DisplayName)) throw new InvalidOperationException("Missing character theme or name");
-        foreach (var value in new[] { TalkFrequency, WanderFrequency, Playfulness, Sleepiness, Clinginess, Timidity, Mischief, Patience, FoodLove, SnackLove })
+        foreach (var value in new[] { TalkFrequency, WanderFrequency, Playfulness, Sleepiness, Clinginess, Timidity, Mischief, Patience, FoodLove, SnackLove, SnackCatchChance })
             if (!double.IsFinite(value) || value < 0 || value > 1)
                 throw new InvalidOperationException("Character traits must be finite values from 0 to 1");
         if (ItemPreferences == null || BehaviorModifiers == null || RelationshipModifiers == null || FavoriteFoods == null || FavoriteSnacks == null ||

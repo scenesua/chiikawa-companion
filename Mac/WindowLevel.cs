@@ -5,6 +5,12 @@ namespace Momonga.Mac;
 
 internal static class WindowLevel
 {
+    public static void IgnoreMouse(Window window)
+    {
+        if(!OperatingSystem.IsMacOS())return;
+        var handle=window.TryGetPlatformHandle();
+        if(handle?.HandleDescriptor=="NSWindow")SendLong(handle.Handle,sel_registerName("setIgnoresMouseEvents:"),1);
+    }
     public static void Maintain(Window window)
     {
         if(!window.IsVisible)return;

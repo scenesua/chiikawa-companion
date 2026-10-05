@@ -16,6 +16,7 @@ public static class WindowPolicy
         return false;
     }
     public static bool IsTopmost(Window window) => (GetStyle(new WindowInteropHelper(window).Handle,-20) & 0x8) != 0;
+    public static bool IsClickThrough(Window window) => (GetStyle(new WindowInteropHelper(window).Handle,-20) & 0x20) != 0;
     public static void Top(Window window) { window.Topmost=true; var h = new WindowInteropHelper(window).Handle; if (h != IntPtr.Zero) SetWindowPos(h, new IntPtr(-1), 0,0,0,0,0x13); }
     public static void Behind(Window furniture, Window pet)
     {
